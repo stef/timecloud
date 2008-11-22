@@ -1,0 +1,19 @@
+* { margin:  0; padding: 0; font-family: "Trebuchet MS", sans-serif }
+#content {width: 900px; margin-left: auto ; margin-right: auto ;}
+.timecloud { width: 800px; margin-left: auto; margin-right: auto; }
+.timegraph, .dates, #timecloud { width: 800px; font-size: 12px; margin: 0px 0px 10px; margin-left: auto; margin-right: auto; }
+.stardate {float: left;}
+.enddate {float: right;}
+ul.tagcloud-list { font-size: 100%; font-weight: bold; padding: 2px; }
+li.tagcloud-base { font-size: 24px; display: inline; white-space: nowrap; }
+a.tagcloud-anchor { text-decoration: none; color: #00f;}
+a.tagcloud-anchor:hover { background-color: #ddd; }
+a.tagcloud-earliest { color: #ccc; }
+a.tagcloud-earlier { color: #99c; }
+a.tagcloud-later { color: #99f; }
+a.tagcloud-latest { color: #00f; }
+.ui-slider-handle { height:27px; background-color: #444; opacity:0.3; position:absolute; top:-7px; width:0px; z-index:1;}
+.left { margin-right: 4px; border-left: 2px solid Navy; }
+.right { margin-left: 2px; border-right: 2px solid Navy; }
+.ui-slider-range { background:#50A029 ; height:27px; opacity:0.3; position:absolute; top:-7px; width:100%; border-left: 1px solid #444; border-right: 1px solid #444; }
+.ui-slider { width: 800px; font-size: 12px; height:23px; position:relative; top: -24px; margin-bottom: -24px; margin-top: -24px;}
