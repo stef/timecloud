@@ -14,9 +14,8 @@ You can create a similar dataset by running:
 
 and then in the utils directory:
 
-   ./xml2tc </tmp/svn.hist >new-timecloud.js
+   ./xml2tc </tmp/svn.hist >svn-timecloud.js
 
-you need to adapt the html file to load the new dataset afterwards. And don't
-forget to run:
+Don't forget to run:
 
    rm /tmp/svn.hist
