@@ -1,0 +1,4 @@
+xsltproc svn2tc.xsl - | 
+   sort -n | 
+   uniq -c -f 1 | 
+   awk -f totc.awk 

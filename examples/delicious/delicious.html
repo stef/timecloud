@@ -1,0 +1,30 @@
+<html>
+   <head>
+      <script type="text/javascript" charset="utf-8" src="../../include/jquery.js"></script>
+      <script type="text/javascript" charset="utf-8" src="../../include/jquery.sparkline.js" ></script>
+      <script type="text/javascript" charset="utf-8" src="../../include/jquery-ui-p.min.js"></script>
+      <script type="text/javascript" charset="utf-8" src="../../include/tagcloud.js"></script>
+      <script type="text/javascript" charset="utf-8" src="../../timecloud.js"></script>
+      <script type="text/javascript">
+         $(document).ready(function() {
+            var username="tag";
+            var query="delicious.php";
+            $.getJSON(query,function(data) { 
+               $("#loading").hide();
+               $("#timecloud").timecloud({"timecloud":data,
+                                          "urlprefix": 'http://delicious.com/'+username+'/'});
+               });
+         })
+      </script>
+      <link href="../../style.css" rel="stylesheet" type="text/css" />
+   </head>
+   <body>
+      <div id="content">
+         <div id="header">
+            <h1>TimeCloud</h1>
+            <div id="timecloud" /> 
+            <div id="loading" style="height: 100px; background: transparent url(spinner.gif) no-repeat scroll center center; text-align: center;"><span>Loading...</span></div>
+         </div>
+      </div>
+   </body>
+</html>

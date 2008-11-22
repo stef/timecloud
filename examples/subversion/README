@@ -1,0 +1,22 @@
+This is a simple example showing the timecloud in action. 
+
+The example shows the number of commits per developer in the Tikiwiki CMS
+project. This data-set is stored in the svn-timecloud.js. The main README
+explains the steps involved in the creation of this file. The html file simply
+loads this dataset and displays it as a timecloud.
+
+The utils/ directory contains the tools for manipulating the raw data into a
+timecloud compliant JSON list. 
+
+You can create a similar dataset by running:
+
+   svn log --xml --verbose >/tmp/svn.hist
+
+and then in the utils directory:
+
+   ./xml2tc </tmp/svn.hist >new-timecloud.js
+
+you need to adapt the html file to load the new dataset afterwards. And don't
+forget to run:
+
+   rm /tmp/svn.hist
