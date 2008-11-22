@@ -1,7 +1,7 @@
 This is a simple example showing the timecloud in action. 
 
-The example shows the number of commits per developer in the Tikiwiki CMS
-project. This data-set is stored in the svn-timecloud.js. The main README
+This example shows the number of commits per developer in a subversion
+repository. This data-set is stored in the svn-timecloud.js. The main README
 explains the steps involved in the creation of this file. The html file simply
 loads this dataset and displays it as a timecloud.
 
