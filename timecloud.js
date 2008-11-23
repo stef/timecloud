@@ -65,19 +65,6 @@ $.widget("ui.timecloud", {
    buildWidget: function() {
 		var thisObj = this;
 		this.element.addClass("timecloud");
-      // setup the first sparkline for a general overview
-      var timegraph=$("<div/>").addClass("timegraph")
-      var sparkline=$("<div/>").addClass("sparkline");
-      timegraph.append(sparkline);
-      var dates=$("<div/>").addClass("dates");
-      // end must appear first for some reason otherwise it breaks the
-      // dateline... could spans be a solution?
-      $("<div/>").addClass("enddate").
-         appendTo(dates);
-      $("<div/>").addClass("startdate").
-         appendTo(dates);
-      timegraph.append(dates);
-
       // you can pan/zoom the timecloud using a window on the overview
       // sparkline
       this.window=$("<div/>").addClass("ui-slider");
@@ -87,7 +74,10 @@ $.widget("ui.timecloud", {
       $("<div/>").addClass("ui-slider-handle")
          .addClass("right")
          .appendTo(this.window);
+
+      var timegraph=this.buildSparkline();
       timegraph.append(this.window);
+
       var overview=$("<div/>")
             .addClass("overview").
             append(timegraph);
@@ -96,6 +86,7 @@ $.widget("ui.timecloud", {
       // let's draw the overview sparkline
       this.drawSparkline(this.overview,overview);
 
+      // set up the window over the main sparkline
       this.window.slider({
          handles: [{start: 0 }, {start:this.options.winSize }],
          min: 0,
@@ -105,112 +96,100 @@ $.widget("ui.timecloud", {
             thisObj.options.start=thisObj.window.slider('value', 0);
             thisObj.options.winSize=Math.round(ui.range);
             thisObj.drawTimecloud(); } })
+      // we want the mousewheel events to scroll the window
       .bind('wheel', function(e) { 
             if(e.delta<0) {
                thisObj.nextFrame();
             } else {
                // TODO thisObj.prevFram();
             }}) 
+      // we also add support for dragging the window
       .find(".ui-slider-range").draggable({
          axis: 'x',
          containment: '.ui-slider',
          helper: 'clone',
          stop: function (e, ui) {
             thisObj.options.start=Math.round((thisObj.frames.length*ui.position.left)/800)
-            thisObj.renderTimecloud(); } });
-      // we also want to see a timeline graph of only the currently shown tags 
-      timegraph=$("<div/>").addClass("timegraph");
-      sparkline=$("<div/>").addClass("sparkline")
-         .bind('wheel', function(e) { thisObj.resizeWindow(e);}); 
-      timegraph.append(sparkline);
-      dates=$("<div/>").addClass("dates");
-      // enddate again before startdate, otherwise the layout breaks... why?
-      $("<div/>").addClass("enddate")
-         .appendTo(dates);
-      $("<div/>").addClass("startdate")
-         .appendTo(dates);
-      timegraph.append(dates);
-      // lets 
+            thisObj.drawTimecloud(); } });
+      
       this.timecloudElem=$("<div/>").addClass("details");
-      this.timecloudElem.append(timegraph);
+
+      // we setup a timeline graph of only the currently shown tags 
+      this.timecloudElem.append(this.buildSparkline());
+
+      // building the animation controls
       $('<span>Play</span>')
          .addClass("text-control")
          .click(function () { $(this).text(thisObj.togglePlay()); })
          .appendTo(this.timecloudElem);
+      // stepwise forward
       $('<span>Step</span>')
          .addClass("text-control")
          .click(function () { thisObj.nextFrame(); })
          .appendTo(this.timecloudElem);
 
+      // setup controls for time window size
       this.timecloudElem.append(" | Span ");
-      $('<span>7d</span>')
-         .addClass("text-control")
-         .click(function () { 
-               thisObj.options.winSize=7;
-               thisObj.renderTimecloud();
-               return false;})
-         .appendTo(this.timecloudElem);
-      $('<span>30d</span>')
-         .addClass("text-control")
-         .click(function () { 
-               thisObj.options.winSize=30;
-               thisObj.renderTimecloud();
-               return false;})
-         .appendTo(this.timecloudElem);
-      $('<span>3m</span>')
-         .addClass("text-control")
-         .click(function () { 
-               thisObj.options.winSize=90;
-               thisObj.renderTimecloud();
-               return false;})
-         .appendTo(this.timecloudElem);
-      $('<span>6m</span>')
-         .addClass("text-control")
-         .click(function () { 
-               thisObj.options.winSize=180;
-               thisObj.renderTimecloud();
-               return false;})
-         .appendTo(this.timecloudElem);
-      $('<span>1y</span>')
-         .addClass("text-control")
-         .click(function () { 
-               thisObj.options.winSize=365;
-               thisObj.renderTimecloud();
-               return false;})
-         .appendTo(this.timecloudElem);
+      [['7d',7],
+       ['30d',30],
+       ['3m',90],
+       ['6m',180],
+       ['1y',365]].forEach(function(e) {
+         $('<span>'+e[0]+'</span>')
+            .addClass("text-control")
+            .click(function () { 
+                  thisObj.options.winSize=e[1];
+                  thisObj.drawTimecloud();
+                  return false;})
+            .appendTo(thisObj.timecloudElem);
+            });
+
+      // setup the controls for steps
       this.timecloudElem.append(" | Steps ");
-      $('<span>1d</span>')
-         .addClass("text-control")
-         .click(function () { thisObj.options.steps=1; return false;})
-         .appendTo(this.timecloudElem);
-      $('<span>7d</span>')
-         .addClass("text-control")
-         .click(function () { thisObj.options.steps=7; return false;})
-         .appendTo(this.timecloudElem);
-      $('<span>30d</span>')
-         .addClass("text-control")
-         .click(function () { thisObj.options.steps=30; return false;})
-         .appendTo(this.timecloudElem);
+      [['1d',1],
+       ['7d',7],
+       ['30d',30]].forEach(function(e) {
+         $('<span>'+e[0]+'</span>')
+            .addClass("text-control")
+            .click(function () { thisObj.options.steps=e[1]; return false;})
+            .appendTo(thisObj.timecloudElem);
+            });
+
+      // create container for tagcloud
       $("<div/>").addClass("tagcloud")
          .bind('wheel', function(e) { thisObj.resizeWindow(e);}) 
          .appendTo(this.timecloudElem);
       this.element.append(this.timecloudElem);
    },
 
-   // internal: used on mouse events
+   // internal: used in building the UI
+   buildSparkline: function(e) {
+      // setup the first sparkline for a general overview
+      var timegraph=$("<div/>").addClass("timegraph")
+      $("<div/>").addClass("sparkline")
+         .appendTo(timegraph);
+
+      var dates=$("<div/>").addClass("dates");
+      // end must appear first for some reason otherwise it breaks the
+      // dateline... could spans be a solution?
+      $("<div/>").addClass("enddate").
+         appendTo(dates);
+      $("<div/>").addClass("startdate").
+         appendTo(dates);
+
+      timegraph.append(dates);
+      return timegraph;
+   },
+
+   // internal: callback used on mouse events
    resizeWindow: function(e) { 
       this.options.winSize=this.options.winSize+(Math.round(this.frames.length/100)*e.delta*-1);
-      thisObj.renderTimecloud();
+      thisObj.drawTimecloud();
       }, 
 
    updateWindow: function() {
       this.window.slider("moveTo", parseInt(this.options.start), 0, true);
       this.window.slider("moveTo", parseInt(this.options.start+this.options.winSize-1), 1, true);
-   },
-   // internal: used to draw a fresh frame
-   renderTimecloud: function() {
-      this.updateWindow();
-      this.drawTimecloud();
    },
 
    // internal: used to draw a fresh frame
