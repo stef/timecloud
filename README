@@ -1,6 +1,6 @@
 jQuery UI Timecloud
 
-Copyright (c) 2008 Stefan Marsiske
+Copyright (c) 2008 Stefan Marsiske &lt;stefan.marsiske@gmail.com&gt;
 Dual licensed under the MIT and GPLv3 licenses.
 
 http://github.com/stef/timecloud/
@@ -8,7 +8,8 @@ http://github.com/stef/timecloud/
 Depends:
 * JQuery UI http://ui.jquery.com
 * JQuery Sparklines  http://omnipotent.net/jquery.sparkline/
-* tagcloud.js [http://code.google.com/p/tagcloud/]
+* tagcloud.js http://code.google.com/p/tagcloud/
+* JQuery $.event.special.wheel http://blog.threedubmedia.com/2008/08/eventspecialwheel.html
 
 All these dependencies are packaged in the include/ directory of the sources.
 

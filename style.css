@@ -1,4 +1,4 @@
-* { margin:  0; padding: 0; font-family: "Trebuchet MS", sans-serif }
+* { margin:  0; padding: 0; font-family: Georgia,Garamond,"Times New Roman",serif;}
 #content {width: 900px; margin-left: auto ; margin-right: auto ;}
 .timecloud { width: 800px; margin-left: auto; margin-right: auto; }
 .timegraph, .dates, #timecloud { width: 800px; font-size: 12px; margin: 0px 0px 10px; margin-left: auto; margin-right: auto; }
@@ -17,3 +17,5 @@ a.tagcloud-latest { color: #00f; }
 .right { margin-left: 2px; border-right: 2px solid Navy; }
 .ui-slider-range { background:#50A029 ; height:27px; opacity:0.3; position:absolute; top:-7px; width:100%; border-left: 1px solid #444; border-right: 1px solid #444; }
 .ui-slider { width: 800px; font-size: 12px; height:23px; position:relative; top: -24px; margin-bottom: -24px; margin-top: -24px;}
+.text-control { margin-right: 4px; color: blue; cursor:pointer; text-decoration: underline;}
+.tagcloud { margin-top: 5px; border-top: 1px solid black; }
