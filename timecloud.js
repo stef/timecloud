@@ -105,6 +105,12 @@ $.widget("ui.timecloud", {
             thisObj.options.start=thisObj.window.slider('value', 0);
             thisObj.options.winSize=Math.round(ui.range);
             thisObj.drawTimecloud(); } })
+      .bind('wheel', function(e) { 
+            if(e.delta<0) {
+               thisObj.nextFrame();
+            } else {
+               // TODO thisObj.prevFram();
+            }}) 
       .find(".ui-slider-range").draggable({
          axis: 'x',
          containment: '.ui-slider',
@@ -113,10 +119,11 @@ $.widget("ui.timecloud", {
             thisObj.options.start=Math.round((thisObj.frames.length*ui.position.left)/800)
             thisObj.window.slider("moveTo", thisObj.options.start+thisObj.options.winSize-1, 1, true);
             thisObj.window.slider("moveTo", thisObj.options.start, 0, true);
-            thisObj.drawTimecloud(); } }); 
+            thisObj.drawTimecloud(); } });
       // we also want to see a timeline graph of only the currently shown tags 
       timegraph=$("<div/>").addClass("timegraph");
-      sparkline=$("<div/>").addClass("sparkline");
+      sparkline=$("<div/>").addClass("sparkline")
+         .bind('wheel', function(e) { thisObj.resizeWindow(e);}); 
       timegraph.append(sparkline);
       dates=$("<div/>").addClass("dates");
       // enddate again before startdate, otherwise the layout breaks... why?
@@ -126,7 +133,7 @@ $.widget("ui.timecloud", {
          .appendTo(dates);
       timegraph.append(dates);
       // lets 
-      this.timecloudElem=$("<div/>").addClass("timecloud");
+      this.timecloudElem=$("<div/>").addClass("details");
       this.timecloudElem.append(timegraph);
       $('<input type="submit" />')
          .attr( 'name', 'pause' )
@@ -138,14 +145,93 @@ $.widget("ui.timecloud", {
          .val( '+' )
          .click(function () { thisObj.nextFrame(); })
          .appendTo(this.timecloudElem);
+
+      this.timecloudElem.append(" | ");
+      $('<input type="submit" />')
+         .attr( 'name', '7d' )
+         .val( '7d' )
+         .click(function () { 
+               thisObj.options.winSize=7;
+               thisObj.window.slider("moveTo", thisObj.options.start+thisObj.options.winSize-1, 1, true);
+               thisObj.window.slider("moveTo", thisObj.options.start, 0, true);
+               thisObj.drawTimecloud();
+               return false;})
+         .appendTo(this.timecloudElem);
+      $('<input type="submit" />')
+         .attr( 'name', '30d' )
+         .val( '30d' )
+         .click(function () { 
+               thisObj.options.winSize=30;
+               thisObj.window.slider("moveTo", thisObj.options.start+thisObj.options.winSize-1, 1, true);
+               thisObj.window.slider("moveTo", thisObj.options.start, 0, true);
+               thisObj.drawTimecloud();
+               return false;})
+         .appendTo(this.timecloudElem);
+      $('<input type="submit" />')
+         .attr( 'name', '3m' )
+         .val( '3m' )
+         .click(function () { 
+               thisObj.options.winSize=90;
+               thisObj.window.slider("moveTo", thisObj.options.start+thisObj.options.winSize-1, 1, true);
+               thisObj.window.slider("moveTo", thisObj.options.start, 0, true);
+               thisObj.drawTimecloud();
+               return false;})
+         .appendTo(this.timecloudElem);
+      $('<input type="submit" />')
+         .attr( 'name', '6m' )
+         .val( '3m' )
+         .click(function () { 
+               thisObj.options.winSize=180;
+               thisObj.window.slider("moveTo", thisObj.options.start+thisObj.options.winSize-1, 1, true);
+               thisObj.window.slider("moveTo", thisObj.options.start, 0, true);
+               thisObj.drawTimecloud();
+               return false;})
+         .appendTo(this.timecloudElem);
+      $('<input type="submit" />')
+         .attr( 'name', '1y' )
+         .val( '1y' )
+         .click(function () { 
+               thisObj.options.winSize=365;
+               thisObj.window.slider("moveTo", thisObj.options.start+thisObj.options.winSize-1, 1, true);
+               thisObj.window.slider("moveTo", thisObj.options.start, 0, true);
+               thisObj.drawTimecloud();
+               return false;})
+         .appendTo(this.timecloudElem);
+      this.timecloudElem.append(" | Steps ");
+      $('<input type="submit" />')
+         .attr( 'name', '1d' )
+         .val( '1d' )
+         .click(function () { thisObj.options.steps=1; return false;})
+         .appendTo(this.timecloudElem);
+      $('<input type="submit" />')
+         .attr( 'name', '7d' )
+         .val( '7d' )
+         .click(function () { thisObj.options.steps=7; return false;})
+         .appendTo(this.timecloudElem);
+      $('<input type="submit" />')
+         .attr( 'name', '30d' )
+         .val( '30d' )
+         .click(function () { thisObj.options.steps=30; return false;})
+         .appendTo(this.timecloudElem);
       $("<div/>").addClass("tagcloud")
+         .bind('wheel', function(e) { thisObj.resizeWindow(e);}) 
          .appendTo(this.timecloudElem);
       this.element.append(this.timecloudElem);
    },
 
+   // internal: used on mouse events
+   resizeWindow: function(e) { 
+      this.options.winSize=this.options.winSize+(Math.round(this.frames.length/100)*e.delta*-1);
+      this.window.slider("moveTo", this.options.start+this.options.winSize-1, 1, true);
+      this.window.slider("moveTo", this.options.start, 0, true);
+      this.drawTimecloud();
+      }, 
+
    // internal: used to draw a fresh frame
    drawTimecloud: function() {
       this.initCache();
+      this.window.slider("moveTo", parseInt(this.options.start), 0, true);
+      this.window.slider("moveTo", parseInt(this.options.start+this.options.winSize-1), 1, true);
       this.redrawTimecloud();
    },
 
@@ -241,7 +327,7 @@ $.widget("ui.timecloud", {
    },
 
    // internal: used as a callback for the play button
-   togglePlay: function(obj) {
+   togglePlay: function() {
       if(this.options.play) { this.options.play=false; return(">"); }
       else { this.options.play=true; this.nextFrame(); return("||");}
    },
