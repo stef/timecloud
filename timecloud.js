@@ -101,7 +101,7 @@ $.widget("ui.timecloud", {
             if(e.delta<0) {
                thisObj.nextFrame();
             } else {
-               // TODO thisObj.prevFram();
+               thisObj.prevFrame();
             }}) 
       // we also add support for dragging the window
       .find(".ui-slider-range").draggable({
@@ -118,12 +118,16 @@ $.widget("ui.timecloud", {
       this.timecloudElem.append(this.buildSparkline());
 
       // building the animation controls
+      $('<span>&lt;</span>')
+         .addClass("text-control")
+         .click(function () { thisObj.prevFrame(); })
+         .appendTo(this.timecloudElem);
       $('<span>Play</span>')
          .addClass("text-control")
          .click(function () { $(this).text(thisObj.togglePlay()); })
          .appendTo(this.timecloudElem);
       // stepwise forward
-      $('<span>Step</span>')
+      $('<span>&gt;</span>')
          .addClass("text-control")
          .click(function () { thisObj.nextFrame(); })
          .appendTo(this.timecloudElem);
@@ -184,7 +188,7 @@ $.widget("ui.timecloud", {
    // internal: callback used on mouse events
    resizeWindow: function(e) { 
       this.options.winSize=this.options.winSize+(Math.round(this.frames.length/100)*e.delta*-1);
-      thisObj.drawTimecloud();
+      this.drawTimecloud();
       }, 
 
    updateWindow: function() {
@@ -195,7 +199,6 @@ $.widget("ui.timecloud", {
    // internal: used to draw a fresh frame
    drawTimecloud: function() {
       this.initCache();
-      this.updateWindow();
       this.redrawTimecloud();
    },
 
@@ -234,6 +237,7 @@ $.widget("ui.timecloud", {
 
    // internal: this draws a tagcloud and sparkline from the cache
    redrawTimecloud: function() {
+      this.updateWindow();
       this.drawSparkline(this.sparkline,this.timecloudElem);
       this.drawTagcloud(this.listToDict(this.tags),this.timecloudElem);
    },
@@ -300,55 +304,86 @@ $.widget("ui.timecloud", {
    // time we substract only the removed days tags and add the added days tags
    // to the cache. afterwards we update the sliding window widget, redraw the
    // timecloud and time the next frame
-   nextFrame: function () {
-      var self=this;
-      var totalFrames=this.frames.length;
-
-      // iterate over all frames
-      if((this.options.start+this.options.winSize+this.options.steps)<totalFrames) {
-         // substract all days tags leaving the sliding window
-         var i=0;
-         while(i<this.options.steps) {
-            var curDay=this.frames[this.options.start+i][1];
-            for (tag in curDay) {
-               var item=curDay[tag];
-               this.tags[item[0]].count-=parseInt(item[1]);
-               if(this.tags[item[0]].count<=0) {
-                  delete this.tags[item[0]];
-               }
-            }
-
-            // add days start+winSize - start+winSize+steps
-            curDay=this.frames[this.options.start+this.options.winSize+i][1];
-            var tag;
-            var cnt=0;
-            for (tag in curDay) {
-               var item=curDay[tag];
-               if(this.tags[item[0]]) {
-                     this.tags[item[0]].count+=parseInt(item[1]);
-               } else {
-                  this.tags[item[0]]=new Array();
-                  this.tags[item[0]].count=parseInt(item[1]);
-               }
-               cnt+=parseInt(item[1]);
-               this.tags[item[0]].currentDate=this.frames[this.options.start+this.options.winSize+i][0];
-            }
-            this.sparkline.push({'date': this.frames[this.options.start+this.options.winSize+i][0], 'count': cnt});
-            i+=1;
-         }
+   nextFrame: function () { 
+      if(this.options.start+this.options.steps<this.frames.length) {
+         var self=this;
+         // substract $steps frames from $tags and $sparkline
+         var exclude=this.frames.slice(this.options.start, this.options.start+this.options.steps);
+         this.delFromCache(exclude);
          this.sparkline.splice(0,this.options.steps);
 
-         // advance start with steps
+         // add $steps framse to tags and sparkline
+         var include=this.frames.slice(this.options.start+this.options.winSize, this.options.start+this.options.winSize+this.options.steps);
+         this.sparkline=this.sparkline.concat(this.addToCache(include));
+         
+         // advance $start by $steps
          this.options.start+=this.options.steps;
-         this.updateWindow();
 
          // draw timecloud (current frame)
          this.redrawTimecloud();
-      }
-      if(this.options.play) { 
-         setTimeout(function() { self.nextFrame.call(self); }, this.options.timeout); 
+         if(this.options.play) { 
+            setTimeout(function() { self.nextFrame.call(self); }, this.options.timeout); 
+         }
       }
    },
+
+   prevFrame: function () { 
+      if(this.options.start-this.options.steps>=0) {
+         var self=this;
+         // substract $steps frames from $tags and $sparkline
+         var exclude=this.frames.slice(this.options.start+this.options.winSize-this.options.steps, this.options.start+this.options.winSize);
+         this.delFromCache(exclude);
+         this.sparkline.splice(this.sparkline.length-this.options.steps,this.options.steps);
+
+         // add $steps framse to tags and sparkline
+         var include=this.frames.slice(this.options.start-this.options.steps, this.options.start);
+         this.sparkline=this.addToCache(include).concat(this.sparkline);
+         
+         // advance $start by $steps
+         this.options.start-=this.options.steps;
+
+         // draw timecloud (current frame)
+         this.redrawTimecloud();
+         if(this.options.play) { 
+            setTimeout(function() { self.prevFrame.call(self); }, this.options.timeout); 
+         }
+      }
+   },
+
+   addToCache: function(frames) {
+      var thisObj=this;
+      var sparkline=[];
+      // we need to add each days tags to the cache
+      frames.forEach(function(day) {
+         var today=day[0];
+         var cnt=0;
+         day[1].forEach(function(tag) {
+            if(thisObj.tags[tag[0]]) {
+                  thisObj.tags[tag[0]].count+=parseInt(tag[1]);
+            } else {
+               thisObj.tags[tag[0]]=new Array();
+               thisObj.tags[tag[0]].count=parseInt(tag[1]);
+            }
+            cnt+=parseInt(tag[1]);
+            thisObj.tags[tag[0]].currentDate=today;
+         });
+         sparkline.push({'date': today, 'count': cnt});
+      });
+      return sparkline;
+   },
+
+   delFromCache: function(frames) {
+      var thisObj=this;
+      frames.forEach(function(day) {
+         day[1].forEach(function(tag) {
+            thisObj.tags[tag[0]].count-=parseInt(tag[1]);
+            if(thisObj.tags[tag[0]].count<=0) {
+               delete thisObj.tags[tag[0]];
+            }
+         });
+      });
+   },
+
 
    // internal: used to convert the cache to the tagcloud.js format
    listToDict: function (lst) {
