@@ -179,7 +179,7 @@ $.widget("ui.timecloud", {
          .appendTo(this.timecloudElem);
       $('<input type="submit" />')
          .attr( 'name', '6m' )
-         .val( '3m' )
+         .val( '6m' )
          .click(function () { 
                thisObj.options.winSize=180;
                thisObj.window.slider("moveTo", thisObj.options.start+thisObj.options.winSize-1, 1, true);
