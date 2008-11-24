@@ -79,8 +79,9 @@ $.widget("ui.timecloud", {
       timegraph.append(this.window);
 
       var overview=$("<div/>")
-            .addClass("overview").
-            append(timegraph);
+            .addClass("overview")
+            .bind('wheel', function(e) { thisObj.resizeWindow(e);}) 
+            .append(timegraph);
       this.element.append(overview);
       
       // let's draw the overview sparkline
@@ -96,13 +97,6 @@ $.widget("ui.timecloud", {
             thisObj.options.start=thisObj.window.slider('value', 0);
             thisObj.options.winSize=Math.round(ui.range);
             thisObj.drawTimecloud(); } })
-      // we want the mousewheel events to scroll the window
-      .bind('wheel', function(e) { 
-            if(e.delta<0) {
-               thisObj.nextFrame();
-            } else {
-               thisObj.prevFrame();
-            }}) 
       // we also add support for dragging the window
       .find(".ui-slider-range").draggable({
          axis: 'x',
@@ -116,8 +110,16 @@ $.widget("ui.timecloud", {
 
       // we setup a timeline graph of only the currently shown tags 
       this.timecloudElem.append(this.buildSparkline());
+      // we want the mousewheel events to scroll the window
+      this.timecloudElem.bind('wheel', function(e) { 
+            if(e.delta<0) {
+               thisObj.nextFrame();
+            } else {
+               thisObj.prevFrame();
+            }}) 
 
       // building the animation controls
+      $('<br/>').appendTo(this.timecloudElem);
       $('<span>&lt;</span>')
          .addClass("text-control")
          .click(function () { thisObj.prevFrame(); })
@@ -161,7 +163,6 @@ $.widget("ui.timecloud", {
 
       // create container for tagcloud
       $("<div/>").addClass("tagcloud")
-         .bind('wheel', function(e) { thisObj.resizeWindow(e);}) 
          .appendTo(this.timecloudElem);
       this.element.append(this.timecloudElem);
    },
@@ -169,16 +170,24 @@ $.widget("ui.timecloud", {
    // internal: used in building the UI
    buildSparkline: function(e) {
       // setup the first sparkline for a general overview
-      var timegraph=$("<div/>").addClass("timegraph")
+      var timegraph=$("<div/>").addClass("timegraph");
+      var labels=$("<div/>").addClass("sparkline-container");
+      var tmp=$("<div/>").addClass("sparkline-label");
+      $("<div/>").addClass("max")
+         .appendTo(tmp);
+      $("<div/>").addClass("min")
+         .appendTo(tmp);
+      tmp.appendTo(labels);
       $("<div/>").addClass("sparkline")
-         .appendTo(timegraph);
+         .appendTo(labels);
+      labels.appendTo(timegraph);
 
       var dates=$("<div/>").addClass("dates");
       // end must appear first for some reason otherwise it breaks the
       // dateline... could spans be a solution?
-      $("<div/>").addClass("enddate").
+      $("<span/>").addClass("enddate").
          appendTo(dates);
-      $("<div/>").addClass("startdate").
+      $("<span/>").addClass("startdate").
          appendTo(dates);
 
       timegraph.append(dates);
@@ -187,13 +196,24 @@ $.widget("ui.timecloud", {
 
    // internal: callback used on mouse events
    resizeWindow: function(e) { 
-      this.options.winSize=this.options.winSize+(Math.round(this.frames.length/100)*e.delta*-1);
+      var delta=(Math.round(this.frames.length/100)*e.delta*-1);
+      if(this.options.winSize+delta>0 && this.options.start-Math.round(delta/2)>=0 && 
+            (this.options.start+this.options.winSize+Math.round(delta/2))<=this.frames.length) {
+         this.options.winSize=this.options.winSize+delta;
+         this.options.start=this.options.start-Math.round(delta/2);
+      }
       this.drawTimecloud();
-      }, 
+   }, 
 
    updateWindow: function() {
-      this.window.slider("moveTo", parseInt(this.options.start), 0, true);
-      this.window.slider("moveTo", parseInt(this.options.start+this.options.winSize-1), 1, true);
+     var left=parseInt(this.options.start);
+     if(left>this.window.slider("value",0)) {
+         this.window.slider("moveTo", left+this.options.winSize-1, 1, true);
+         this.window.slider("moveTo", left, 0, true);
+     } else {
+         this.window.slider("moveTo", left, 0, true);
+         this.window.slider("moveTo", left+this.options.winSize-1, 1, true);
+     }
    },
 
    // internal: used to draw a fresh frame
@@ -237,9 +257,9 @@ $.widget("ui.timecloud", {
 
    // internal: this draws a tagcloud and sparkline from the cache
    redrawTimecloud: function() {
-      this.updateWindow();
       this.drawSparkline(this.sparkline,this.timecloudElem);
       this.drawTagcloud(this.listToDict(this.tags),this.timecloudElem);
+      this.updateWindow();
    },
 
    // internal: used to all draw sparklines, we need to expand the possibly
@@ -252,15 +272,22 @@ $.widget("ui.timecloud", {
       var enddate=this.strToDate(data[data.length-1]['date']);
       var nextdate=startdate;
       var lst=[];
+      var min=Infinity;
+      var max=-Infinity;
       for (id in data) {
          var curdate=this.strToDate(data[id]['date']);
          while(nextdate<curdate) {
             lst.push(0);
             nextdate=this.addDay(nextdate,1);
          }
-         lst.push(parseInt(data[id]['count']));
+         var val=parseInt(data[id]['count']);
+         if(val>max) max=val;
+         if(val<min) min=val;
+         lst.push(val);
          nextdate=this.addDay(nextdate,1);
       }
+      $('.min',target).text(min);
+      $('.max',target).text(max);
       $('.startdate',target).text(this.dateToStr(startdate));
       $('.enddate',target).text(this.dateToStr(enddate));
       $('.sparkline',target).sparkline(lst, this.options.sparklineStyle);
