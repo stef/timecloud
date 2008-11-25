@@ -68,10 +68,10 @@ $.widget("ui.timecloud", {
       // you can pan/zoom the timecloud using a window on the overview
       // sparkline
       this.window=$("<div/>").addClass("ui-slider");
-      $("<div/>").addClass("ui-slider-handle")
+      $("<span/>").addClass("ui-slider-handle")
          .addClass("left")
          .appendTo(this.window);
-      $("<div/>").addClass("ui-slider-handle")
+      $("<span/>").addClass("ui-slider-handle")
          .addClass("right")
          .appendTo(this.window);
 

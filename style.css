@@ -3,10 +3,10 @@
 .timecloud, .timegraph { width: 800px; margin-left: auto; margin-right: auto; }
 .timegraph { font-size: 12px; margin: 0px 0px 10px;}
 .ui-slider { width: 800px; font-size: 12px; height:23px; position:relative; top: -24px;}
-.ui-slider-range { background:#50A029 ; height:27px; opacity:0.3; position:absolute; top:-2px; width:100%; border-left: 1px solid #444; border-right: 1px solid #444; }
+.ui-slider-range { background:#50A029 ; height:27px; opacity:0.3; position:absolute; top:-2px; width:100%; border-left: 1px solid #444; border-right: 1px solid #444; border-bottom: 8px solid #555}
 .ui-slider-handle { height:27px; background-color: #444; opacity:0.3; position:absolute; top:-2px; width:0px; z-index:1;}
-.left { margin-right: 4px; border-left: 3px solid Navy; }
-.right { margin-left: 2px; border-right: 3px solid Navy; }
+.left { margin-left: -1px; border-left: 4px solid Navy; }
+.right { margin-left: 3px; border-right: 4px solid Navy; }
 .sparkline-container { height:27px; width: 840px; position: relative; left: -40px;}
 .sparkline { width: 800px; position: relative; left: 40px; }
 .sparkline-label { position: relative; font-size: 9px; text-align: right; width: 40px;}
