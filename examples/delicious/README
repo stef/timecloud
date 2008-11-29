@@ -4,13 +4,7 @@ tags.
 The example must be run on a PHP aware webserver, which processes the data live
 and feeds it to the timecloud.
 
-You need to have a valid account on delicious for this to try out, in the
-delicious.php file you need to set your delicious username and password,
-otherwise it will not work.
-
-To make the tags in the timecloud link to your related bookmarks on delicious,
-you should set the username value also in the delicious.html file.
+You need to have a valid account on delicious for this to try out.
 
 If you have all this on your php-aware webserver you can point your browser to
 delicious.html and enjoy your life in delicious tags. :)
-
