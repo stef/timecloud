@@ -5,6 +5,7 @@
 .ui-slider { width: 800px; font-size: 12px; height:23px; position:relative; top: -25px;}
 .ui-slider-range { background:#50A029 ; height:27px; opacity:0.3; position:absolute; top:-2px; width:100%; border-left: 1px solid #444; border-right: 1px solid #444; padding-bottom: 4px; border-bottom: 3px dashed #000}
 .ui-slider-handle { height:27px; background-color: #444; opacity:0.3; position:absolute; top:-2px; width:0px; z-index:1;}
+.ui-slider-handle:hover { background-color: #000; opacity:1; position:absolute; z-index:1000;}
 .left { margin-left: -2px; border-left: 5px solid Navy; }
 .right { margin-left: 3px; border-right: 5px solid Navy; }
 .sparkline-container { height:27px; width: 840px; position: relative; left: -40px;}
@@ -22,6 +23,6 @@ a.tagcloud-earliest { color: #ccc; }
 a.tagcloud-earlier { color: #99c; }
 a.tagcloud-later { color: #99f; }
 a.tagcloud-latest { color: #00f; }
-.text-control { margin-right: 4px; margin-top: 5px; color: blue; cursor:pointer; text-decoration: underline; background: #eee;}
+.text-control { margin-right: 4px; margin-top: 5px; color: blue; font-size: 12px; cursor:pointer; text-decoration: underline; background: #eee;}
 .tagcloud { margin-top: 5px; border-top: 1px solid black; }
-
+.selected {background:Navy ; color: yellow; opacity:0.3;}

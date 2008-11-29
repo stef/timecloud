@@ -29,7 +29,6 @@ $.widget("ui.timecloud", {
    overview: [],
    frames: [],
    init: function() {
-
       var nextdate=this.strToDate(this.options.timecloud[0][0]);
       for (id in this.options.timecloud) {
          // data received can be sparse, we fill any missing timesegments with
@@ -56,7 +55,15 @@ $.widget("ui.timecloud", {
       // draw first frame
       this.buildWidget();
       this.drawTimecloud();
-      if(this.options.play) { 
+      this.play();
+   },
+
+   play: function() {
+      var self=this;
+      if(! this.options.play) return;
+      if(this.options.playBack) { 
+         setTimeout(function() { self.prevFrame.call(self); }, this.options.timeout); 
+      } else {
          setTimeout(function() { self.nextFrame.call(self); }, this.options.timeout); 
       }
    },
@@ -120,22 +127,8 @@ $.widget("ui.timecloud", {
 
       // building the animation controls
       $('<br/>').appendTo(this.timecloudElem);
-      $('<span>&lt;</span>')
-         .addClass("text-control")
-         .click(function () { thisObj.prevFrame(); })
-         .appendTo(this.timecloudElem);
-      $('<span>Play</span>')
-         .addClass("text-control")
-         .click(function () { $(this).text(thisObj.togglePlay()); })
-         .appendTo(this.timecloudElem);
-      // stepwise forward
-      $('<span>&gt;</span>')
-         .addClass("text-control")
-         .click(function () { thisObj.nextFrame(); })
-         .appendTo(this.timecloudElem);
-
       // setup controls for time window size
-      this.timecloudElem.append(" | Span ");
+      this.timecloudElem.append(" Span ");
       [['7d',7],
        ['30d',30],
        ['3m',90],
@@ -149,6 +142,33 @@ $.widget("ui.timecloud", {
                   return false;})
             .appendTo(thisObj.timecloudElem);
             });
+      this.timecloudElem.append(" | ");
+      this.back=$('<span>&lt;</span>')
+         .addClass("text-control")
+         .click(function () { 
+               thisObj.options.playBack=true;
+               thisObj.forward.removeClass("selected");
+               $(this).addClass("selected");
+               })
+         .appendTo(this.timecloudElem);
+      this.playElem=$('<span>Play</span>')
+         .addClass("text-control")
+         .click(function () { $(this).text(thisObj.togglePlay()); })
+         .appendTo(this.timecloudElem);
+      // stepwise forward
+      this.forward=$('<span>&gt;</span>')
+         .addClass("text-control")
+         .click(function () { 
+               thisObj.options.playBack=false;
+               thisObj.back.removeClass("selected");
+               $(this).addClass("selected");
+               })
+         .appendTo(this.timecloudElem);
+      if(this.options.playBack) {
+         this.back.addClass("selected");
+      } else {
+         this.forward.addClass("selected");
+      }
 
       // setup the controls for steps
       this.timecloudElem.append(" | Steps ");
@@ -231,6 +251,7 @@ $.widget("ui.timecloud", {
       // iterate over winSize
       while(i<this.options.start+this.options.winSize) {
          // fetch current day
+         if(i>this.frames.length-1) break;
          var curday=this.frames[i];
          var currentDate=curday[0];
          //iterate over tags in day
@@ -324,7 +345,7 @@ $.widget("ui.timecloud", {
    // internal: used as a callback for the play button
    togglePlay: function() {
       if(this.options.play) { this.options.play=false; return("Play"); }
-      else { this.options.play=true; this.nextFrame(); return("Pause");}
+      else { this.options.play=true; this.play(); return("Pause");}
    },
 
    // internal: updates the cache advancing the window by self steps. to save
@@ -332,7 +353,7 @@ $.widget("ui.timecloud", {
    // to the cache. afterwards we update the sliding window widget, redraw the
    // timecloud and time the next frame
    nextFrame: function () { 
-      if(this.options.start+this.options.steps<this.frames.length) {
+      if(this.options.start+this.options.winSize+this.options.steps<this.frames.length) {
          var self=this;
          // substract $steps frames from $tags and $sparkline
          var exclude=this.frames.slice(this.options.start, this.options.start+this.options.steps);
@@ -348,9 +369,10 @@ $.widget("ui.timecloud", {
 
          // draw timecloud (current frame)
          this.redrawTimecloud();
-         if(this.options.play) { 
-            setTimeout(function() { self.nextFrame.call(self); }, this.options.timeout); 
-         }
+         this.play();
+      } else {
+         this.options.play=false;
+         this.playElem.text("Play"); 
       }
    },
 
@@ -371,9 +393,10 @@ $.widget("ui.timecloud", {
 
          // draw timecloud (current frame)
          this.redrawTimecloud();
-         if(this.options.play) { 
-            setTimeout(function() { self.prevFrame.call(self); }, this.options.timeout); 
-         }
+         this.play();
+      } else {
+         this.options.play=false;
+         this.playElem.text("Play"); 
       }
    },
 
@@ -451,7 +474,8 @@ $.ui.timecloud.defaults = {
    winSize: 30,
    steps: 1, // animation should advance this many days / frame
    timeout: 200, // delay between frames
-   play: 0,  // play animation?
+   playBack: false,  // forward
+   play: false,  // start playing?
    sparklineStyle: { type:'line', lineColor:'Navy', height:'30px', width:'800px', chartRangeMin: '0' },
    urlprefix: '', // tagcloud links will be pointing here
    urlpostfix: '' // tagcloud links get this postfix
