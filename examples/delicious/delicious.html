@@ -9,13 +9,20 @@
       <script type="text/javascript" charset="utf-8" src="../../timecloud.js"></script>
       <script type="text/javascript">
          $(document).ready(function() {
-            var username="tag";
-            var query="delicious.php";
-            $.getJSON(query,function(data) { 
-               $("#loading").hide();
-               $("#timecloud").timecloud({"timecloud":data,
-                                          "urlprefix": 'http://delicious.com/'+username+'/'});
-               });
+            $("#loading").hide();
+            $("#drawButton").click(function () { 
+                  $("#loading").show();
+                  $('#timecloud').empty();
+                  var username=$("#deliciousUser").val();
+                  var password=$("#deliciousPassword").val();
+                  var query="delicious.php?user="+username+"&pass="+password;
+                  $.getJSON(query,function(data) { 
+                     $("#loading").hide();
+
+                     $("#timecloud").timecloud({"timecloud":data,
+                                                "urlprefix": 'http://delicious.com/'+username+'/'});
+                     });
+                  return false;})
          })
       </script>
       <link href="../../style.css" rel="stylesheet" type="text/css" />
@@ -24,8 +31,11 @@
       <div id="content">
          <div id="header">
             <h1>TimeCloud</h1>
-            <div id="timecloud" /> 
+            Username: <input type="text" id="deliciousUser" size="10" />
+            Password: <input type="password" id="deliciousPassword" size="10" />
+            <input type="submit" id="drawButton" value="Draw" />
             <div id="loading" style="height: 100px; background: transparent url(spinner.gif) no-repeat scroll center center; text-align: center;"><span>Loading...</span></div>
+            <div id="timecloud" /> 
          </div>
       </div>
    </body>

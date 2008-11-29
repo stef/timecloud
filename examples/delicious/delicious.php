@@ -1,9 +1,8 @@
 <?php
 /* important to set these values to access the delicious API */
-define('DELICIOUS_USER', '');
-define('DELICIOUS_PASS', '');
-
 require('phpdelicious/php-delicious.inc.php');
+
+if(!isset($_GET['user']) or !isset($_GET['pass'])) return;
 
 $timeconstraint='';
 if(isset($_GET['start'])) {
@@ -14,7 +13,7 @@ if(isset($_GET['end'])) {
 }
 
 $days=array();
-$oDelicious = new PhpDelicious(DELICIOUS_USER, DELICIOUS_PASS);
+$oDelicious = new PhpDelicious($_GET['user'], $_GET['pass']);
 $aPosts = $oDelicious->GetAllPosts();
 if ($aPosts) {
    foreach ($aPosts as $aPost) {
