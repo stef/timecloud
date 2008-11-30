@@ -129,21 +129,6 @@ $.widget("ui.timecloud", {
       // setup controls for time window size
       var controls=$("<div />")
          .addClass("control-container").appendTo(this.timecloudElem);
-      controls.append(" Span ");
-      [['7d',7],
-       ['30d',30],
-       ['3m',90],
-       ['6m',180],
-       ['1y',365]].forEach(function(e) {
-         $('<span>'+e[0]+'</span>')
-            .addClass("text-control")
-            .click(function () { 
-                  thisObj.options.winSize=e[1];
-                  thisObj.drawTimecloud();
-                  return false;})
-            .appendTo(controls);
-            });
-      controls.append(" | ");
       this.back=$('<span>&lt;</span>')
          .addClass("text-control")
          .click(function () { 
@@ -171,11 +156,10 @@ $.widget("ui.timecloud", {
          this.forward.addClass("selected");
       }
 
-      // setup the controls for steps
-      controls.append(" | Steps ");
-      [['1d',1],
-       ['7d',7],
-       ['30d',30]].forEach(function(e) {
+      controls.append(" | Speed ");
+      [['normal',1],
+       ['fast',7],
+       ['lightning',30]].forEach(function(e) {
          $('<span>'+e[0]+'</span>')
             .addClass("text-control")
             .click(function () { thisObj.options.steps=e[1]; return false;})
