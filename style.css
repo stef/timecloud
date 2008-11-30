@@ -5,14 +5,13 @@
 .control-container { margin-top: 2em; }
 /* slider skin */
 .ui-slider { height:23px; position:relative; top: -25px;}
-.ui-slider-range { background:#50A029 ; height:27px; opacity:0.3; position:absolute; top:-2px; width:100%; border-left: 1px solid #444; border-right: 1px solid #444; padding-bottom: 4px; border-bottom: 2px dashed #000}
+.ui-slider-range { background:#50A029 ; height:27px; opacity:0.3; position:absolute; top:-2px; border-left: 1px solid #444; border-right: 1px solid #444; padding-bottom: 4px; border-bottom: 2px dashed #000}
 .ui-slider-handle { height:27px; background-color: #444; opacity:0.3; position:absolute; top:-2px; width:0px; z-index:1;}
 .left { margin-left: -2px; border-left: 5px solid Navy; }
 .right { margin-left: 3px; border-right: 5px solid Navy; }
 /* sparkline skin */
-.sparkline-container { height:27px; position: relative; left: -40px;}
-.sparkline { position: relative; left: 40px; }
-.sparkline-label { position: relative; font-size: .8em; text-align: right; width: 40px;}
+.sparkline-container { height:27px; }
+.sparkline-label { position: relative; font-size: .8em; text-align: right; width: 40px; left: -40px; }
 .min, .max { position: absolute; }
 .min { bottom: -27px; right:0px; }
 .max { top: 0px; right:0px; }

@@ -85,14 +85,14 @@ $.widget("ui.timecloud", {
       var timegraph=this.buildSparkline();
       timegraph.append(this.window);
 
-      var overview=$("<div/>")
+      this.overviewElem=$("<div/>")
             .addClass("overview")
             .bind('wheel', function(e) { thisObj.resizeWindow(e);}) 
             .append(timegraph);
-      this.element.append(overview);
+      this.element.append(this.overviewElem);
       
       // let's draw the overview sparkline
-      this.drawSparkline(this.overview,overview);
+      this.drawSparkline(this.overview,this.overviewElem);
 
       // set up the window over the main sparkline
       this.window.slider({
@@ -263,8 +263,9 @@ $.widget("ui.timecloud", {
 
    // internal: this draws a tagcloud and sparkline from the cache
    redrawTimecloud: function() {
-      this.drawSparkline(this.sparkline,this.timecloudElem);
       this.drawTagcloud(this.listToDict(this.tags),this.timecloudElem);
+      this.drawSparkline(this.overview,this.overviewElem);
+      this.drawSparkline(this.sparkline,this.timecloudElem);
       this.updateWindow();
    },
 
@@ -297,7 +298,7 @@ $.widget("ui.timecloud", {
       $('.startdate',target).text(this.dateToStr(startdate));
       $('.enddate',target).text(this.dateToStr(enddate));
       var tmp=this.options.sparklineStyle;
-      tmp.width=target.width();
+      tmp.width=$('.sparkline',target).width();
       $('.sparkline',target).sparkline(lst, tmp);
    },
 
