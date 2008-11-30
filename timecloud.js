@@ -126,9 +126,10 @@ $.widget("ui.timecloud", {
             }}) 
 
       // building the animation controls
-      $('<br/>').appendTo(this.timecloudElem);
       // setup controls for time window size
-      this.timecloudElem.append(" Span ");
+      var controls=$("<div />")
+         .addClass("control-container").appendTo(this.timecloudElem);
+      controls.append(" Span ");
       [['7d',7],
        ['30d',30],
        ['3m',90],
@@ -140,9 +141,9 @@ $.widget("ui.timecloud", {
                   thisObj.options.winSize=e[1];
                   thisObj.drawTimecloud();
                   return false;})
-            .appendTo(thisObj.timecloudElem);
+            .appendTo(controls);
             });
-      this.timecloudElem.append(" | ");
+      controls.append(" | ");
       this.back=$('<span>&lt;</span>')
          .addClass("text-control")
          .click(function () { 
@@ -150,11 +151,11 @@ $.widget("ui.timecloud", {
                thisObj.forward.removeClass("selected");
                $(this).addClass("selected");
                })
-         .appendTo(this.timecloudElem);
+         .appendTo(controls);
       this.playElem=$('<span>Play</span>')
          .addClass("text-control")
          .click(function () { $(this).text(thisObj.togglePlay()); })
-         .appendTo(this.timecloudElem);
+         .appendTo(controls);
       // stepwise forward
       this.forward=$('<span>&gt;</span>')
          .addClass("text-control")
@@ -163,7 +164,7 @@ $.widget("ui.timecloud", {
                thisObj.back.removeClass("selected");
                $(this).addClass("selected");
                })
-         .appendTo(this.timecloudElem);
+         .appendTo(controls);
       if(this.options.playBack) {
          this.back.addClass("selected");
       } else {
@@ -171,14 +172,14 @@ $.widget("ui.timecloud", {
       }
 
       // setup the controls for steps
-      this.timecloudElem.append(" | Steps ");
+      controls.append(" | Steps ");
       [['1d',1],
        ['7d',7],
        ['30d',30]].forEach(function(e) {
          $('<span>'+e[0]+'</span>')
             .addClass("text-control")
             .click(function () { thisObj.options.steps=e[1]; return false;})
-            .appendTo(thisObj.timecloudElem);
+            .appendTo(controls);
             });
 
       // create container for tagcloud
@@ -355,7 +356,7 @@ $.widget("ui.timecloud", {
    // to the cache. afterwards we update the sliding window widget, redraw the
    // timecloud and time the next frame
    nextFrame: function () { 
-      if(this.options.start+this.options.winSize+this.options.steps<this.frames.length) {
+      if(this.options.start+this.options.winSize+this.options.steps<=this.frames.length) {
          var self=this;
          // substract $steps frames from $tags and $sparkline
          var exclude=this.frames.slice(this.options.start, this.options.start+this.options.steps);
