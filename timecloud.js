@@ -110,7 +110,7 @@ $.widget("ui.timecloud", {
          containment: '.ui-slider',
          helper: 'clone',
          stop: function (e, ui) {
-            thisObj.options.start=Math.round((thisObj.frames.length*ui.position.left)/800)
+            thisObj.options.start=Math.round((thisObj.frames.length*ui.position.left)/thisObj.timecloudElem.width())
             thisObj.drawTimecloud(); } });
       
       this.timecloudElem=$("<div/>").addClass("details");
@@ -311,7 +311,9 @@ $.widget("ui.timecloud", {
       $('.max',target).text(max);
       $('.startdate',target).text(this.dateToStr(startdate));
       $('.enddate',target).text(this.dateToStr(enddate));
-      $('.sparkline',target).sparkline(lst, this.options.sparklineStyle);
+      var tmp=this.options.sparklineStyle;
+      tmp.width=target.width();
+      $('.sparkline',target).sparkline(lst, tmp);
    },
 
    // internal: this is used to draw a tagcloud, we invoke the services of tagcloud.js
@@ -476,7 +478,7 @@ $.ui.timecloud.defaults = {
    timeout: 200, // delay between frames
    playBack: false,  // forward
    play: false,  // start playing?
-   sparklineStyle: { type:'line', lineColor:'Navy', height:'30px', width:'800px', chartRangeMin: '0' },
+   sparklineStyle: { type:'line', lineColor:'Navy', height:'30px', chartRangeMin: '0' },
    urlprefix: '', // tagcloud links will be pointing here
    urlpostfix: '' // tagcloud links get this postfix
  };
