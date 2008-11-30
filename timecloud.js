@@ -1,4 +1,4 @@
-/*
+/* 
  * jQuery UI Timecloud
  *
  * Copyright (c) 2008 Stefan Marsiske
