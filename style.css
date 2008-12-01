@@ -22,7 +22,7 @@
 .enddate {float: right;}
 /* gui controls */
 .text-control { margin-right: .5em; margin-top: 1em; color: blue; cursor:pointer; text-decoration: underline; background: #eee;}
-.selected {background:Navy ; color: yellow; opacity:0.3;}
+.selected {background:Navy ; color: yellow; opacity:0.3; text-decoration: none;}
 /* tagcloud style */
 ul.tagcloud-list { font-size: 100%; font-weight: bold; padding: 2px; }
 li.tagcloud-base { font-size: 24px; display: inline; white-space: nowrap; }
