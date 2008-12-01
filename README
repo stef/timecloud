@@ -33,7 +33,8 @@ Options
 Timecloud has quite a few options to set, these can be passed like the ‘timecloud’ parameter in the above example. The following options are available for controlling the behavious and looks of the timecloud:
 
     * timecloud this contains the sparse timecloud data, mandatory
-    * start (0) defines index of first frame to render in the above timecloud list
+    * start (0) defines index of first frame to render in the above timecloud
+      list, negative values start from the end.
     * winSize (30) sets the initial number of days to capture in a frame
     * steps (1) defines how many days to skip from frame to frame
     * timeout (200us) sets the interval between frames in animation
