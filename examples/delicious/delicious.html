@@ -19,9 +19,12 @@
                   $.getJSON(query,function(data) { 
                      $("#loading").hide();
 
-                     $("#timecloud").timecloud({"timecloud":data,
-                                                "start": -1,
-                                                "urlprefix": 'http://delicious.com/'+username+'/'});
+                     if(!data.error) {
+                        $("#timecloud").timecloud({"timecloud":data,
+                                                   "start": -1,
+                                                   "urlprefix": 'http://delicious.com/'+username+'/'});
+                     } else {
+                        $("#timecloud").text(data.error); }
                      });
                   return false;})
          })
