@@ -51,6 +51,12 @@ $.widget("ui.timecloud", {
          }
          this.overview.push({'date': this.options.timecloud[id][0], 'count': cnt});
       }
+      // calculate window position if options.start=-1
+      if(0>this.options.start) {
+         this.options.start=this.frames.length-this.options.winSize+(this.options.start+1);
+         // no sense in playing forward 
+         this.options.playBack=true;
+      }
 
       // draw first frame
       this.buildWidget();
@@ -458,7 +464,7 @@ $.widget("ui.timecloud", {
 $.ui.timecloud.getter = "start winSize steps timeout play graphStyle";
 $.ui.timecloud.defaults = {
    timecloud: [], // the raw(sparse) timecloud data
-   start: 0, // first frame to show
+   start: 0, // first frame to show, negative values start at the end-winSize
    winSize: 30,
    steps: 1, // animation should advance this many days / frame
    timeout: 200, // delay between frames
