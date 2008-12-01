@@ -162,15 +162,27 @@ $.widget("ui.timecloud", {
          this.forward.addClass("selected");
       }
 
-      controls.append(" | Speed ");
-      [['normal',1],
-       ['fast',7],
-       ['lightning',30]].forEach(function(e) {
-         $('<span>'+e[0]+'</span>')
-            .addClass("text-control")
-            .click(function () { thisObj.options.steps=e[1]; return false;})
-            .appendTo(controls);
-            });
+      this.speed=$("<div/>").addClass("ui-speed");
+      $("<span/>").addClass("ui-speed-handle")
+         .appendTo(this.speed);
+      $("<span>normal...fast</span>").addClass("ui-speed-label")
+         .appendTo(this.speed);
+      // set up the window over the main sparkline
+      this.speed.slider({
+         handle: '.ui-speed-handle',
+         min: 0,
+         steps: 2,
+         max: 2,
+         change: function (e,ui) {
+            if(ui.value==0) {
+               thisObj.options.steps=1;
+            } else if(ui.value==1) {
+               thisObj.options.steps=Math.round(thisObj.options.winSize*0.1);
+            } else if(ui.value==2) {
+               thisObj.options.steps=Math.round(thisObj.options.winSize*0.2);
+            }
+            } });
+      this.speed.appendTo(controls);
 
       // create container for tagcloud
       $("<div/>").addClass("tagcloud")
@@ -270,7 +282,11 @@ $.widget("ui.timecloud", {
    // internal: this draws a tagcloud and sparkline from the cache
    redrawTimecloud: function() {
       this.drawTagcloud(this.listToDict(this.tags),this.timecloudElem);
-      this.drawSparkline(this.overview,this.overviewElem);
+      // only redraw the overview, if the window got resized
+      if(this.vsize!=this.timecloudElem.width()) {
+         this.drawSparkline(this.overview,this.overviewElem);
+         this.vsize=this.timecloudElem.width();
+      }
       this.drawSparkline(this.sparkline,this.timecloudElem);
       this.updateWindow();
    },

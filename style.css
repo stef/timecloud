@@ -1,14 +1,16 @@
 /* various containers */
 .timecloud {font-size: 12px;}
-.timegraph, .tagcloud { margin-top: 1em;}
-.tagcloud { border-top: 1px solid black; }
+.tagcloud { background-color: #ffd; }
 .control-container { margin-top: 2em; }
 /* slider skin */
 .ui-slider { height:23px; position:relative; top: -25px;}
-.ui-slider-range { background:#50A029 ; height:27px; opacity:0.3; position:absolute; top:-2px; border-left: 1px solid #444; border-right: 1px solid #444; padding-bottom: 4px; border-bottom: 2px dashed #000}
-.ui-slider-handle { height:27px; background-color: #444; opacity:0.3; position:absolute; top:-2px; width:0px; z-index:1;}
-.left { margin-left: -2px; border-left: 5px solid Navy; }
-.right { margin-left: 3px; border-right: 5px solid Navy; }
+.ui-slider-range { background:#50A029 ; height:27px; opacity:0.3; position:absolute; top:-2px; border-left: 1px solid black; border-right: 1px solid black; padding-bottom: 4px; border-bottom: 1px dashed #000}
+.ui-slider-handle { height:27px; opacity:0.8; position:absolute; top:-2px; width:4px; z-index:1; background-position:center center; background-repeat:no-repeat;}
+.left { margin-left: -2px; background-image:url(i/slider-handle-left.png);}
+.right { margin-left: 3px; background-image:url(i/slider-handle-right.png);}
+.ui-speed { background-image:url(i/slider-bg.png); background-position:center center; background-repeat:no-repeat; height:15px; width:55px; left: 65px; top: -1.3em; }
+.ui-speed-handle { background-image:url(i/slider-handle.png); background-position:center center; background-repeat:no-repeat; height:15px; left:0; position:absolute; top:0; width:12px; z-index:1; }
+.ui-speed-label { left:0; position:absolute; top:1.7em; font-size: 9px;}
 /* sparkline skin */
 .sparkline-container { height:27px; }
 .sparkline-label { position: relative; font-size: .8em; text-align: right; width: 40px; left: -40px; }
