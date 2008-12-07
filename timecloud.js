@@ -35,7 +35,7 @@ $.widget("ui.timecloud", {
 	},
 
    // loads a sparse list of timed tagclouds, fills empty days with empty
-   // taglcouds, then builds the appropriate dom and finally draws the first frame
+   // tagclouds, then builds the appropriate dom and finally draws the first frame
    // afterwards it starts the animation if necessary
    init: function() {
       this.sparkline = [];
@@ -47,13 +47,13 @@ $.widget("ui.timecloud", {
          // data received can be sparse, we fill any missing timesegments with
          // empty data
          var curdate = this.strToDate(this.options.timecloud[id][0]);
-         while(nextdate && nextdate<curdate) {
-            this.frames.push([this.dateToStr(nextdate),[]]);
+         while(nextdate && nextdate < curdate) {
+            this.frames.push([this.dateToStr(nextdate), []]);
             nextdate = this.addDay(nextdate,1);
          }
          nextdate = this.addDay(nextdate,1);
          // push non-sparse data
-         this.frames.push([this.options.timecloud[id][0],this.options.timecloud[id][1]]);
+         this.frames.push([this.options.timecloud[id][0], this.options.timecloud[id][1]]);
 
          // calculate overview counts
          curDay = this.options.timecloud[id][1];
@@ -69,6 +69,10 @@ $.widget("ui.timecloud", {
          this.options.start = this.frames.length - this.options.winSize + (this.options.start + 1);
          // no sense in playing forward
          this.options.playBack=true;
+      }
+
+      if(this.options.winSize == 0) {
+          this.options.winSize = this.frames.length;
       }
 
       // draw first frame
@@ -93,7 +97,7 @@ $.widget("ui.timecloud", {
 		this.element.addClass("timecloud");
       // you can pan/zoom the timecloud using a window on the overview
       // sparkline
-      this.window=$("<div/>").addClass("ui-slider");
+      this.window = $("<div/>").addClass("ui-slider");
       $("<span/>").addClass("ui-slider-handle")
          .addClass("left")
          .appendTo(this.window);
@@ -101,10 +105,10 @@ $.widget("ui.timecloud", {
          .addClass("right")
          .appendTo(this.window);
 
-      var timegraph=this.buildSparkline();
+      var timegraph = this.buildSparkline();
       timegraph.append(this.window);
 
-      this.overviewElem=$("<div/>")
+      this.overviewElem = $("<div/>")
             .addClass("overview")
             .bind('wheel', function(e) { thisObj.resizeWindow(e);})
             .append(timegraph);
@@ -120,8 +124,8 @@ $.widget("ui.timecloud", {
          max: this.frames.length,
          range: true,
          change: function (e,ui) {
-            thisObj.options.start=thisObj.window.slider('value', 0);
-            thisObj.options.winSize=Math.round(ui.range);
+            thisObj.options.start = thisObj.window.slider('value', 0);
+            thisObj.options.winSize = Math.round(ui.range);
             thisObj.drawTimecloud(); } })
       // we also add support for dragging the window
       .find(".ui-slider-range").draggable({
@@ -146,7 +150,7 @@ $.widget("ui.timecloud", {
 
       // building the animation controls
       // setup controls for time window size
-      var controls=$("<div />")
+      var controls = $("<div />")
          .addClass("control-container").appendTo(this.timecloudElem);
       this.back=$('<span>&lt;</span>')
          .addClass("text-control")
@@ -156,12 +160,12 @@ $.widget("ui.timecloud", {
                $(this).addClass("selected");
                })
          .appendTo(controls);
-      this.playElem=$('<span>Play</span>')
+      this.playElem = $('<span>Play</span>')
          .addClass("text-control")
          .click(function () { $(this).text(thisObj.togglePlay()); })
          .appendTo(controls);
       // stepwise forward
-      this.forward=$('<span>&gt;</span>')
+      this.forward = $('<span>&gt;</span>')
          .addClass("text-control")
          .click(function () {
                thisObj.options.playBack=false;
@@ -175,7 +179,7 @@ $.widget("ui.timecloud", {
          this.forward.addClass("selected");
       }
 
-      this.speed=$("<div/>").addClass("ui-speed");
+      this.speed = $("<div/>").addClass("ui-speed");
       $("<span/>").addClass("ui-speed-handle")
          .appendTo(this.speed);
       $("<span>normal...fast</span>").addClass("ui-speed-label")
@@ -187,11 +191,11 @@ $.widget("ui.timecloud", {
          steps: 2,
          max: 2,
          change: function (e,ui) {
-            if(ui.value==0) {
+            if(ui.value == 0) {
                thisObj.options.steps=1;
-            } else if(ui.value==1) {
+            } else if(ui.value == 1) {
                thisObj.options.steps=Math.round(thisObj.options.winSize*0.1);
-            } else if(ui.value==2) {
+            } else if(ui.value == 2) {
                thisObj.options.steps=Math.round(thisObj.options.winSize*0.2);
             }
             } });
@@ -206,9 +210,9 @@ $.widget("ui.timecloud", {
    // internal: used in building the UI
    buildSparkline: function(e) {
       // setup the first sparkline for a general overview
-      var timegraph=$("<div/>").addClass("timegraph");
-      var labels=$("<div/>").addClass("sparkline-container");
-      var tmp=$("<div/>").addClass("sparkline-label");
+      var timegraph = $("<div/>").addClass("timegraph");
+      var labels = $("<div/>").addClass("sparkline-container");
+      var tmp = $("<div/>").addClass("sparkline-label");
       $("<div/>").addClass("max")
          .appendTo(tmp);
       $("<div/>").addClass("min")
@@ -232,23 +236,23 @@ $.widget("ui.timecloud", {
 
    // internal: callback used on mouse events
    resizeWindow: function(e) {
-      var delta=(Math.round(this.frames.length/100)*e.delta*-1);
-      if(this.options.winSize+delta>0 && this.options.start-Math.round(delta/2)>=0 &&
-            (this.options.start+this.options.winSize+Math.round(delta/2))<=this.frames.length) {
-         this.options.winSize=this.options.winSize+delta;
-         this.options.start=this.options.start-Math.round(delta/2);
+      var delta = (Math.round(this.frames.length / 100) * e.delta * - 1);
+      if(this.options.winSize + delta > 0 && this.options.start - Math.round(delta / 2) >= 0 &&
+            (this.options.start + this.options.winSize + Math.round(delta / 2)) <= this.frames.length) {
+         this.options.winSize = this.options.winSize + delta;
+         this.options.start = this.options.start - Math.round(delta / 2);
       }
       this.drawTimecloud();
    },
 
    updateWindow: function() {
-     var left=parseInt(this.options.start);
-     if(left>this.window.slider("value",0)) {
-         this.window.slider("moveTo", left+this.options.winSize-1, 1, true);
+     var left = parseInt(this.options.start);
+     if(left > this.window.slider("value", 0)) {
+         this.window.slider("moveTo", left + this.options.winSize - 1, 1, true);
          this.window.slider("moveTo", left, 0, true);
      } else {
          this.window.slider("moveTo", left, 0, true);
-         this.window.slider("moveTo", left+this.options.winSize-1, 1, true);
+         this.window.slider("moveTo", left + this.options.winSize - 1, 1, true);
      }
    },
 
@@ -261,31 +265,31 @@ $.widget("ui.timecloud", {
    // internal: calculates a tagcloud from window_size elems in frame
    // it updates the sparkline cache as well
    initCache: function () {
-      var i=this.options.start;
-      this.tags=[];
-      this.sparkline=[];
+      var i = this.options.start;
+      this.tags = [];
+      this.sparkline = [];
       // iterate over winSize
-      while(i<this.options.start+this.options.winSize) {
+      while(i < this.options.start + this.options.winSize) {
          // fetch current day
-         if(i>this.frames.length-1) break;
-         var curday=this.frames[i];
-         var currentDate=curday[0];
+         if(i > this.frames.length - 1) break;
+         var curday = this.frames[i];
+         var currentDate = curday[0];
          //iterate over tags in day
          var item;
-         var cnt=0;
+         var cnt = 0;
          for(item in curday[1]) {
-            var tag=curday[1][item][0];
-            var count=parseInt(curday[1][item][1]);
+            var tag = curday[1][item][0];
+            var count = parseInt(curday[1][item][1]);
             if(this.tags[tag]) {
                // add count
-               this.tags[tag].count+=count;
+               this.tags[tag].count += count;
             } else {
                // add tag
-               this.tags[tag]=[];
-               this.tags[tag].count=count;
+               this.tags[tag] = [];
+               this.tags[tag].count = count;
             }
-            this.tags[tag].currentDate=currentDate;
-            cnt+=count;
+            this.tags[tag].currentDate = currentDate;
+            cnt += count;
          }
          this.sparkline.push({'date': currentDate, 'count': cnt});
          i+=1;
@@ -294,13 +298,13 @@ $.widget("ui.timecloud", {
 
    // internal: this draws a tagcloud and sparkline from the cache
    redrawTimecloud: function() {
-      this.drawTagcloud(this.listToDict(this.tags),this.timecloudElem);
+      this.drawTagcloud(this.listToDict(this.tags), this.timecloudElem);
       // only redraw the overview, if the window got resized
-      if(this.vsize!=this.timecloudElem.width()) {
-         this.drawSparkline(this.overview,this.overviewElem);
-         this.vsize=this.timecloudElem.width();
+      if(this.vsize != this.timecloudElem.width()) {
+         this.drawSparkline(this.overview, this.overviewElem);
+         this.vsize = this.timecloudElem.width();
       }
-      this.drawSparkline(this.sparkline,this.timecloudElem);
+      this.drawSparkline(this.sparkline, this.timecloudElem);
       this.updateWindow();
    },
 
@@ -310,45 +314,45 @@ $.widget("ui.timecloud", {
    // sparkline
    drawSparkline: function (data,target) {
       // data might be sparse, insert zeroes into list
-      var startdate=this.strToDate(data[0]['date']);
-      var enddate=this.strToDate(data[data.length-1]['date']);
-      var nextdate=startdate;
-      var lst=[];
-      var min=Infinity;
-      var max=-Infinity;
+      var startdate = this.strToDate(data[0]['date']);
+      var enddate = this.strToDate(data[data.length-1]['date']);
+      var nextdate = startdate;
+      var lst = [];
+      var min = Infinity;
+      var max = -Infinity;
       for (id in data) {
-         var curdate=this.strToDate(data[id]['date']);
+         var curdate = this.strToDate(data[id]['date']);
          while(nextdate<curdate) {
             lst.push(0);
-            nextdate=this.addDay(nextdate,1);
+            nextdate = this.addDay(nextdate,1);
          }
-         var val=parseInt(data[id]['count']);
-         if(val>max) max=val;
-         if(val<min) min=val;
+         var val = parseInt(data[id]['count']);
+         if(val>max) max = val;
+         if(val<min) min = val;
          lst.push(val);
-         nextdate=this.addDay(nextdate,1);
+         nextdate = this.addDay(nextdate,1);
       }
       $('.min',target).text(min);
       $('.max',target).text(max);
       $('.startdate',target).text(this.dateToStr(startdate));
       $('.enddate',target).text(this.dateToStr(enddate));
-      var tmp=this.options.sparklineStyle;
-      tmp.width=$('.sparkline',target).width();
+      var tmp = this.options.sparklineStyle;
+      tmp.width = $('.sparkline',target).width();
       $('.sparkline',target).sparkline(lst, tmp);
    },
 
    // internal: this is used to draw a tagcloud, we invoke the services of tagcloud.js
    drawTagcloud: function (data,target) {
       var tc;
-      var url='';
-      tc=TagCloud.create();
+      var url = '';
+      tc = TagCloud.create();
       for (id in data) {
          var timestamp;
          if(data[id][2]) {
-            timestamp=this.strToDate(data[id][2]);
+            timestamp = this.strToDate(data[id][2]);
          }
          if(this.options.urlprefix || this.options.urlpostfix) {
-            url=this.options.urlprefix+data[id][0]+this.options.urlpostfix; //name
+            url = this.options.urlprefix+data[id][0]+this.options.urlpostfix; //name
          }
          if(parseInt(data[id][1]) ) {
                // name
@@ -367,8 +371,8 @@ $.widget("ui.timecloud", {
 
    // internal: used as a callback for the play button
    togglePlay: function() {
-      if(this.options.play) { this.options.play=false; return("Play"); }
-      else { this.options.play=true; this.play(); return("Pause");}
+      if(this.options.play) { this.options.play = false; return("Play"); }
+      else { this.options.play = true; this.play(); return("Pause");}
    },
 
    // internal: updates the cache advancing the window by self steps. to save
@@ -377,15 +381,15 @@ $.widget("ui.timecloud", {
    // timecloud and time the next frame
    nextFrame: function () {
       if(this.options.start+this.options.winSize+this.options.steps<=this.frames.length) {
-         var self=this;
+         var self = this;
          // substract $steps frames from $tags and $sparkline
-         var exclude=this.frames.slice(this.options.start, this.options.start+this.options.steps);
+         var exclude = this.frames.slice(this.options.start, this.options.start+this.options.steps);
          this.delFromCache(exclude);
          this.sparkline.splice(0,this.options.steps);
 
          // add $steps framse to tags and sparkline
-         var include=this.frames.slice(this.options.start+this.options.winSize, this.options.start+this.options.winSize+this.options.steps);
-         this.sparkline=this.sparkline.concat(this.addToCache(include));
+         var include = this.frames.slice(this.options.start+this.options.winSize, this.options.start+this.options.winSize+this.options.steps);
+         this.sparkline = this.sparkline.concat(this.addToCache(include));
 
          // advance $start by $steps
          this.options.start+=this.options.steps;
@@ -394,22 +398,22 @@ $.widget("ui.timecloud", {
          this.redrawTimecloud();
          this.play();
       } else {
-         this.options.play=false;
+         this.options.play = false;
          this.playElem.text("Play");
       }
    },
 
    prevFrame: function () {
       if(this.options.start-this.options.steps>=0) {
-         var self=this;
+         var self = this;
          // substract $steps frames from $tags and $sparkline
-         var exclude=this.frames.slice(this.options.start+this.options.winSize-this.options.steps, this.options.start+this.options.winSize);
+         var exclude = this.frames.slice(this.options.start+this.options.winSize-this.options.steps, this.options.start+this.options.winSize);
          this.delFromCache(exclude);
          this.sparkline.splice(this.sparkline.length-this.options.steps,this.options.steps);
 
          // add $steps framse to tags and sparkline
-         var include=this.frames.slice(this.options.start-this.options.steps, this.options.start);
-         this.sparkline=this.addToCache(include).concat(this.sparkline);
+         var include = this.frames.slice(this.options.start-this.options.steps, this.options.start);
+         this.sparkline = this.addToCache(include).concat(this.sparkline);
 
          // advance $start by $steps
          this.options.start-=this.options.steps;
@@ -418,27 +422,27 @@ $.widget("ui.timecloud", {
          this.redrawTimecloud();
          this.play();
       } else {
-         this.options.play=false;
+         this.options.play = false;
          this.playElem.text("Play");
       }
    },
 
    addToCache: function(frames) {
-      var thisObj=this;
-      var sparkline=[];
+      var thisObj = this;
+      var sparkline = [];
       // we need to add each days tags to the cache
       frames.forEach(function(day) {
-         var today=day[0];
-         var cnt=0;
+         var today = day[0];
+         var cnt = 0;
          day[1].forEach(function(tag) {
             if(thisObj.tags[tag[0]]) {
                   thisObj.tags[tag[0]].count+=parseInt(tag[1]);
             } else {
-               thisObj.tags[tag[0]]=new Array();
-               thisObj.tags[tag[0]].count=parseInt(tag[1]);
+               thisObj.tags[tag[0]] = new Array();
+               thisObj.tags[tag[0]].count = parseInt(tag[1]);
             }
             cnt+=parseInt(tag[1]);
-            thisObj.tags[tag[0]].currentDate=today;
+            thisObj.tags[tag[0]].currentDate = today;
          });
          sparkline.push({'date': today, 'count': cnt});
       });
@@ -446,7 +450,7 @@ $.widget("ui.timecloud", {
    },
 
    delFromCache: function(frames) {
-      var thisObj=this;
+      var thisObj = this;
       frames.forEach(function(day) {
          day[1].forEach(function(tag) {
             thisObj.tags[tag[0]].count-=parseInt(tag[1]);
@@ -460,7 +464,7 @@ $.widget("ui.timecloud", {
 
    // internal: used to convert the cache to the tagcloud.js format
    listToDict: function (lst) {
-      var dict=[];
+      var dict = [];
       // convert tags into list for drawTagcloud
       for ( tag in lst) {
          dict.push([tag, lst[tag].count, lst[tag].currentDate]);
@@ -481,20 +485,20 @@ $.widget("ui.timecloud", {
 
    // internal: helper function to cope with dates
    strToDate: function (str) {
-      var frgs=str.split("-");
+      var frgs = str.split("-");
       return(new Date(frgs[0],frgs[1]-1,frgs[2]));
    },
 
    // internal: helper function to cope with dates
    addDay: function (d,n) {
-      var oneday=24*60*60*1000;
+      var oneday = 24*60*60*1000;
       return new Date(d.getTime() + n*oneday); },
  });
 $.ui.timecloud.getter = "start winSize steps timeout play graphStyle";
 $.ui.timecloud.defaults = {
    timecloud: [], // the raw(sparse) timecloud data
    start: 0, // first frame to show, negative values start at the end-winSize
-   winSize: 30,
+   winSize: 30, // 0 sets the window to span the whole dataset
    steps: 1, // animation should advance this many days / frame
    timeout: 200, // delay between frames
    playBack: false,  // forward
