@@ -5,17 +5,17 @@
  * Dual licensed under the MIT and GPLv3 licenses.
  *    Copyright (C) 2008  Stefan Marsiske
  *   This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * http://github.com/stef/timecloud/
  *
@@ -38,35 +38,35 @@ $.widget("ui.timecloud", {
    // taglcouds, then builds the appropriate dom and finally draws the first frame
    // afterwards it starts the animation if necessary
    init: function() {
-      this.sparkline= [];
-      this.tags= [];
-      this.overview= [];
-      this.frames= [];
-      var nextdate=this.strToDate(this.options.timecloud[0][0]);
+      this.sparkline = [];
+      this.tags = [];
+      this.overview = [];
+      this.frames = [];
+      var nextdate = this.strToDate(this.options.timecloud[0][0]);
       for (id in this.options.timecloud) {
          // data received can be sparse, we fill any missing timesegments with
          // empty data
-         var curdate=this.strToDate(this.options.timecloud[id][0]);
+         var curdate = this.strToDate(this.options.timecloud[id][0]);
          while(nextdate && nextdate<curdate) {
             this.frames.push([this.dateToStr(nextdate),[]]);
-            nextdate=this.addDay(nextdate,1);
+            nextdate = this.addDay(nextdate,1);
          }
-         nextdate=this.addDay(nextdate,1);
+         nextdate = this.addDay(nextdate,1);
          // push non-sparse data
          this.frames.push([this.options.timecloud[id][0],this.options.timecloud[id][1]]);
 
          // calculate overview counts
-         curDay=this.options.timecloud[id][1];
+         curDay = this.options.timecloud[id][1];
          var tag;
-         var cnt=0;
+         var cnt = 0;
          for (tag in curDay) {
-            cnt+=parseInt(curDay[tag][1]);
+            cnt += parseInt(curDay[tag][1]);
          }
          this.overview.push({'date': this.options.timecloud[id][0], 'count': cnt});
       }
       // calculate window position if options.start=-1
-      if(0>this.options.start) {
-         this.options.start=this.frames.length-this.options.winSize+(this.options.start+1);
+      if(0 > this.options.start) {
+         this.options.start = this.frames.length - this.options.winSize + (this.options.start + 1);
          // no sense in playing forward
          this.options.playBack=true;
       }
