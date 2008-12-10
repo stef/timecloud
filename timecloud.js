@@ -71,14 +71,16 @@ $.widget("ui.timecloud", {
          this.options.playBack=true;
       }
 
-      if(this.options.winSize == 0) {
-          this.options.winSize = this.frames.length;
-      }
-
-      // draw first frame
       this.buildWidget();
-      this.drawTimecloud();
-      this.play();
+      // draw first frame
+      if(this.options.winSize != 0) {
+          this.drawTimecloud();
+          this.play();
+      } else {
+          this.options.winSize = this.frames.length;
+          this.drawTimecloud();
+          this.timecloudElem.slideUp();
+      }
    },
 
    play: function() {
@@ -114,9 +116,6 @@ $.widget("ui.timecloud", {
             .append(timegraph);
       this.element.append(this.overviewElem);
 
-      // let's draw the overview sparkline
-      this.drawSparkline(this.overview,this.overviewElem);
-
       // set up the window over the main sparkline
       this.window.slider({
          handles: [{start: 0 }, {start:this.options.winSize }],
@@ -124,16 +123,25 @@ $.widget("ui.timecloud", {
          max: this.frames.length,
          range: true,
          change: function (e,ui) {
-            thisObj.options.start = thisObj.window.slider('value', 0);
-            thisObj.options.winSize = Math.round(ui.range);
-            thisObj.drawTimecloud(); } })
+             if(thisObj.window.slider('value', 0)==ui.value) {
+                 thisObj.options.start = thisObj.window.slider('value', 0);
+             }
+             if(thisObj.options.winSize == thisObj.frames.length && ui.range < thisObj.frames.length) {
+                 thisObj.timecloudElem.slideDown();
+             } 
+             if(thisObj.options.winSize < thisObj.frames.length && ui.range >= thisObj.frames.length) {
+                 thisObj.timecloudElem.slideUp();
+             }
+             thisObj.options.winSize = Math.round(ui.range);
+             thisObj.drawTimecloud(); } })
       // we also add support for dragging the window
       .find(".ui-slider-range").draggable({
          axis: 'x',
          containment: '.ui-slider',
          helper: 'clone',
          stop: function (e, ui) {
-            thisObj.options.start=Math.round((thisObj.frames.length*ui.position.left)/thisObj.timecloudElem.width())
+            thisObj.options.start = Math.round(
+                (thisObj.frames.length*ui.position.left) / thisObj.element.width())
             thisObj.drawTimecloud(); } });
 
       this.timecloudElem=$("<div/>").addClass("details");
@@ -201,10 +209,11 @@ $.widget("ui.timecloud", {
             } });
       this.speed.appendTo(controls);
 
+      this.element.append(this.timecloudElem);
+
       // create container for tagcloud
       $("<div/>").addClass("tagcloud")
-         .appendTo(this.timecloudElem);
-      this.element.append(this.timecloudElem);
+         .appendTo(this.element);
    },
 
    // internal: used in building the UI
@@ -236,13 +245,20 @@ $.widget("ui.timecloud", {
 
    // internal: callback used on mouse events
    resizeWindow: function(e) {
-      var delta = (Math.round(this.frames.length / 100) * e.delta * - 1);
-      if(this.options.winSize + delta > 0 && this.options.start - Math.round(delta / 2) >= 0 &&
-            (this.options.start + this.options.winSize + Math.round(delta / 2)) <= this.frames.length) {
-         this.options.winSize = this.options.winSize + delta;
-         this.options.start = this.options.start - Math.round(delta / 2);
-      }
-      this.drawTimecloud();
+       var delta = (Math.round(this.frames.length / 100) * e.delta * - 1);
+
+       if(this.options.winSize + delta > 0 && this.options.start - Math.round(delta / 2) >= 0 &&
+          (this.options.start + this.options.winSize + Math.round(delta / 2)) <= this.frames.length) {
+           if(this.options.winSize == this.frames.length && this.options.winSize + delta < this.frames.length) {
+               this.timecloudElem.slideDown();
+           } else if(this.options.winSize < this.frames.length && this.options.winSize + delta >= this.frames.length) {
+               this.timecloudElem.slideUp();
+           }
+           this.options.winSize = this.options.winSize + delta;
+           this.options.start = this.options.start - Math.round(delta / 2);
+
+           this.drawTimecloud();
+       }
    },
 
    updateWindow: function() {
@@ -298,12 +314,8 @@ $.widget("ui.timecloud", {
 
    // internal: this draws a tagcloud and sparkline from the cache
    redrawTimecloud: function() {
-      this.drawTagcloud(this.listToDict(this.tags), this.timecloudElem);
-      // only redraw the overview, if the window got resized
-      if(this.vsize != this.timecloudElem.width()) {
-         this.drawSparkline(this.overview, this.overviewElem);
-         this.vsize = this.timecloudElem.width();
-      }
+      this.drawTagcloud(this.listToDict(this.tags), this.element);
+      this.drawSparkline(this.overview, this.overviewElem);
       this.drawSparkline(this.sparkline, this.timecloudElem);
       this.updateWindow();
    },
