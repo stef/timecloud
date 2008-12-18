@@ -467,7 +467,7 @@ $.widget("ui.timecloud", {
          day[1].forEach(function(tag) {
             thisObj.tags[tag[0]].count-=parseInt(tag[1]);
             if(thisObj.tags[tag[0]].count<=0) {
-               delete thisObj.tags[tag[0]];
+                thisObj.tags.splice(thisObj.tags.indexOf(tag[0]),1);
             }
          });
       });
