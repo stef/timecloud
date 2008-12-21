@@ -72,13 +72,15 @@ $.widget("ui.timecloud", {
       }
 
       this.buildWidget();
-      // draw first frame
+      // visualize the data
       if(this.options.winSize != 0) {
           this.drawTimecloud();
           this.play();
       } else {
+          // if initial winSize is 0, then we start in tagcloud mode
           this.options.winSize = this.frames.length;
           this.drawTimecloud();
+          // we hide the animation related elements
           this.timecloudElem.slideUp();
       }
    },
@@ -95,127 +97,89 @@ $.widget("ui.timecloud", {
 
    // internal, used to build the DOM
    buildWidget: function() {
-		var thisObj = this;
-		this.element.addClass("timecloud");
-      // you can pan/zoom the timecloud using a window on the overview
-      // sparkline
-      this.window = $("<div/>").addClass("ui-slider");
-      $("<span/>").addClass("ui-slider-handle")
-         .addClass("left")
-         .appendTo(this.window);
-      $("<span/>").addClass("ui-slider-handle")
-         .addClass("right")
-         .appendTo(this.window);
+       var thisObj = this;
+       this.element.addClass("timecloud");
 
-      var timegraph = this.buildSparkline();
-      timegraph.append(this.window);
+       // build the overview area: a sparkline with a window to select
+       // the range of displayed data
+       this.overviewElem = this.buildOverview();
+       this.element.append(this.overviewElem);
 
-      this.overviewElem = $("<div/>")
-            .addClass("overview")
-            .bind('wheel', function(e) { thisObj.resizeWindow(e);})
-            .append(timegraph);
-      this.element.append(this.overviewElem);
-
-      // set up the window over the main sparkline
-      this.window.slider({
-         handles: [{start: 0 }, {start:this.options.winSize }],
-         min: 0,
-         max: this.frames.length,
-         range: true,
-         change: function (e,ui) {
-             if(thisObj.window.slider('value', 0)==ui.value) {
-                 thisObj.options.start = thisObj.window.slider('value', 0);
-             }
-             if(thisObj.options.winSize == thisObj.frames.length && ui.range < thisObj.frames.length) {
-                 thisObj.timecloudElem.slideDown();
-             } 
-             if(thisObj.options.winSize < thisObj.frames.length && ui.range >= thisObj.frames.length) {
-                 thisObj.timecloudElem.slideUp();
-             }
-             thisObj.options.winSize = Math.round(ui.range);
-             thisObj.drawTimecloud(); } })
-      // we also add support for dragging the window
-      .find(".ui-slider-range").draggable({
-         axis: 'x',
-         containment: '.ui-slider',
-         helper: 'clone',
-         stop: function (e, ui) {
-            thisObj.options.start = Math.round(
-                (thisObj.frames.length*ui.position.left) / thisObj.element.width())
-            thisObj.drawTimecloud(); } });
-
-      this.timecloudElem=$("<div/>").addClass("details");
-
-      // we setup a timeline graph of only the currently shown tags
-      this.timecloudElem.append(this.buildSparkline());
-      // we want the mousewheel events to scroll the window
-      this.timecloudElem.bind('wheel', function(e) {
-            if(e.delta<0) {
+       // build the detail area: 
+       // * an optional zoomed in portion of the overview is displayed,
+       // * an optional playback controls and
+       // * an optional diagram of the weights is displayed.
+       // * and of course the tagcloud
+       this.timecloudElem=$("<div/>").addClass("details");
+       // we setup a timeline graph of only the currently shown tags
+       this.timecloudElem.append(this.buildSparkline());
+       // we want the mousewheel events to scroll the window
+       this.timecloudElem.bind('wheel', function(e) {
+           if(e.delta<0) {
                thisObj.nextFrame();
-            } else {
+           } else {
                thisObj.prevFrame();
-            }})
+           }})
 
-      // building the animation controls
-      // setup controls for time window size
-      var controls = $("<div />")
-         .addClass("control-container").appendTo(this.timecloudElem);
-      this.back=$('<span>&lt;</span>')
-         .addClass("text-control")
-         .click(function () {
-               thisObj.options.playBack=true;
-               thisObj.forward.removeClass("selected");
-               $(this).addClass("selected");
-               })
-         .appendTo(controls);
-      this.playElem = $('<span>Play</span>')
-         .addClass("text-control")
-         .click(function () { $(this).text(thisObj.togglePlay()); })
-         .appendTo(controls);
-      // stepwise forward
-      this.forward = $('<span>&gt;</span>')
-         .addClass("text-control")
-         .click(function () {
-               thisObj.options.playBack=false;
-               thisObj.back.removeClass("selected");
-               $(this).addClass("selected");
-               })
-         .appendTo(controls);
-      if(this.options.playBack) {
-         this.back.addClass("selected");
-      } else {
-         this.forward.addClass("selected");
-      }
+       // building the animation controls
+       // setup controls for time window size
+       this.controls = this.buildControls().appendTo(this.timecloudElem);
 
-      this.speed = $("<div/>").addClass("ui-speed");
-      $("<span/>").addClass("ui-speed-handle")
-         .appendTo(this.speed);
-      $("<span>normal...fast</span>").addClass("ui-speed-label")
-         .appendTo(this.speed);
-      // set up the window over the main sparkline
-      this.speed.slider({
-         handle: '.ui-speed-handle',
-         min: 0,
-         steps: 2,
-         max: 2,
-         change: function (e,ui) {
-            if(ui.value == 0) {
-               thisObj.options.steps=1;
-            } else if(ui.value == 1) {
-               thisObj.options.steps=Math.round(thisObj.options.winSize*0.1);
-            } else if(ui.value == 2) {
-               thisObj.options.steps=Math.round(thisObj.options.winSize*0.2);
-            }
-            } });
-      this.speed.appendTo(controls);
+       this.element.append(this.timecloudElem);
 
-      this.element.append(this.timecloudElem);
-
-      // create container for tagcloud
-      $("<div/>").addClass("tagcloud")
-         .appendTo(this.element);
+       // create container for tagcloud
+       $("<div/>").addClass("tagcloud")
+       .appendTo(this.element);
    },
 
+    // builds a sparkline with a sliding window, the sparkline
+    // displays the sum of weights over time
+    buildOverview: function() {
+        var thisObj=this;
+
+        var elem=$("<div/>").addClass("overview")
+        .bind('wheel', function(e) { thisObj.resizeWindow(e);});
+
+        // you can pan/zoom the timecloud using a window on the overview
+        // sparkline
+        var timegraph=this.sparklineRange(
+            {
+                handles: [{start: 0 }, {start:this.options.winSize }],
+                min: 0,
+                max: this.frames.length,
+                range: true,
+                change: function(e,ui) {return thisObj.overviewZoom(thisObj,e,ui)},
+            },
+            this.overviewMoved);
+
+        elem.append(timegraph);
+        elem.window=$('.ui-slider',elem);
+        return elem;
+    },
+
+    // internal: used to build a windowed sparkline
+    sparklineRange: function(sliderOpts,dragCb) {
+        var thisObj=this;
+
+        // create an overlay and two handles inside
+        var window = $("<div/>").addClass("ui-slider");
+        $("<span/>").addClass("ui-slider-handle")
+        .addClass("left")
+        .appendTo(window);
+        $("<span/>").addClass("ui-slider-handle")
+        .addClass("right")
+        .appendTo(window);
+        // initialize ui-slider
+        window.slider(sliderOpts)
+        // we also add support for dragging the window
+        .find(".ui-slider-range").draggable({
+            axis: 'x',
+            containment: '.ui-slider',
+            helper: 'clone',
+            stop: function(e,ui) { dragCb(thisObj,e,ui)}, });
+
+        return this.buildSparkline().append(window);
+    },
    // internal: used in building the UI
    buildSparkline: function(e) {
       // setup the first sparkline for a general overview
@@ -243,6 +207,85 @@ $.widget("ui.timecloud", {
       return timegraph;
    },
 
+    // internal fn: builds controls
+    buildControls: function() {
+        var thisObj=this;
+
+        var result = $("<div />")
+        .addClass("control-container");
+        result.back=$('<span>&lt;</span>')
+        .addClass("text-control")
+        .click(function () {
+            thisObj.options.playBack=true;
+            thisObj.controls.forward.removeClass("selected");
+            $(this).addClass("selected");
+        })
+        .appendTo(result);
+        result.playElem = $('<span>Play</span>')
+        .addClass("text-control")
+        .click(function () { $(this).text(thisObj.togglePlay()); })
+        .appendTo(result);
+        // stepwise forward
+        result.forward = $('<span>&gt;</span>')
+        .addClass("text-control")
+        .click(function () {
+            thisObj.options.playBack=false;
+            thisObj.controls.back.removeClass("selected");
+            $(this).addClass("selected");
+        })
+        .appendTo(result);
+        if(this.options.playBack) {
+            result.back.addClass("selected");
+        } else {
+            result.forward.addClass("selected");
+        }
+
+        result.speed = $("<div/>").addClass("ui-speed");
+        $("<span/>").addClass("ui-speed-handle")
+        .appendTo(result.speed);
+        $("<span>normal...fast</span>").addClass("ui-speed-label")
+        .appendTo(result.speed);
+
+        result.speed.slider({
+            handle: '.ui-speed-handle',
+            min: 0,
+            steps: 2,
+            max: 2,
+            change: function (e,ui) {
+                if(ui.value == 0) {
+                    thisObj.options.steps=1;
+                } else if(ui.value == 1) {
+                    thisObj.options.steps=Math.round(thisObj.options.winSize*0.1);
+                } else if(ui.value == 2) {
+                    thisObj.options.steps=Math.round(thisObj.options.winSize*0.2);
+                }
+            } });
+        result.speed.appendTo(result);
+        return result;
+    },
+
+    // callback changing the range in the overview sparkline using the sliders
+    overviewZoom: function (self, e,ui) {
+        if(self.overviewElem.window.slider('value', 0)==ui.value) {
+            self.options.start = self.overviewElem.window.slider('value', 0);
+        }
+        if(self.options.winSize == self.frames.length && ui.range < self.frames.length) {
+            self.timecloudElem.slideDown();
+        }
+        if(self.options.winSize < self.frames.length && ui.range >= self.frames.length) {
+            self.timecloudElem.slideUp();
+        }
+        self.options.winSize = Math.round(ui.range);
+        self.drawTimecloud();
+    },
+
+    // callback for the draggable ui-slider-range
+    overviewMoved: function (self, e, ui) {
+        self.options.start = Math.round(
+            (self.frames.length*ui.position.left) / self.element.width())
+        self.drawTimecloud();
+    },
+
    // internal: callback used on mouse events
    resizeWindow: function(e) {
        var delta = (Math.round(this.frames.length / 100) * e.delta * - 1);
@@ -261,15 +304,21 @@ $.widget("ui.timecloud", {
        }
    },
 
-   updateWindow: function() {
-     var left = parseInt(this.options.start);
-     if(left > this.window.slider("value", 0)) {
-         this.window.slider("moveTo", left + this.options.winSize - 1, 1, true);
-         this.window.slider("moveTo", left, 0, true);
-     } else {
-         this.window.slider("moveTo", left, 0, true);
-         this.window.slider("moveTo", left + this.options.winSize - 1, 1, true);
-     }
+    redrawOverviewRange: function() {
+        var left = parseInt(this.options.start);
+        var right = left + this.options.winSize - 1;
+        return this.updateWindow(this.overviewElem.window, left, right);
+    },
+
+   // internal function to update the handles of windows.
+    updateWindow: function(w,left,right) {
+        if(left > w.slider("value", 0)) {
+            w.slider("moveTo", right, 1, true);
+            w.slider("moveTo", left, 0, true);
+        } else {
+            w.slider("moveTo", left, 0, true);
+            w.slider("moveTo", right, 1, true);
+        }
    },
 
    // internal: used to draw a fresh frame
@@ -317,7 +366,7 @@ $.widget("ui.timecloud", {
       this.drawTagcloud(this.listToDict(this.tags), this.element);
       this.drawSparkline(this.overview, this.overviewElem);
       this.drawSparkline(this.sparkline, this.timecloudElem);
-      this.updateWindow();
+      this.redrawOverviewRange();
    },
 
    // internal: used to all draw sparklines, we need to expand the possibly
@@ -388,13 +437,13 @@ $.widget("ui.timecloud", {
    },
 
    // internal: updates the cache advancing the window by self steps. to save
-   // time we substract only the removed days tags and add the added days tags
+   // time we subtract only the removed days tags and add the added days tags
    // to the cache. afterwards we update the sliding window widget, redraw the
    // timecloud and time the next frame
    nextFrame: function () {
       if(this.options.start+this.options.winSize+this.options.steps<=this.frames.length) {
          var self = this;
-         // substract $steps frames from $tags and $sparkline
+         // subtract $steps frames from $tags and $sparkline
          var exclude = this.frames.slice(this.options.start, this.options.start+this.options.steps);
          this.delFromCache(exclude);
          this.sparkline.splice(0,this.options.steps);
@@ -411,14 +460,14 @@ $.widget("ui.timecloud", {
          this.play();
       } else {
          this.options.play = false;
-         this.playElem.text("Play");
+         this.controls.playElem.text("Play");
       }
    },
 
    prevFrame: function () {
       if(this.options.start-this.options.steps>=0) {
          var self = this;
-         // substract $steps frames from $tags and $sparkline
+         // subtract $steps frames from $tags and $sparkline
          var exclude = this.frames.slice(this.options.start+this.options.winSize-this.options.steps, this.options.start+this.options.winSize);
          this.delFromCache(exclude);
          this.sparkline.splice(this.sparkline.length-this.options.steps,this.options.steps);
@@ -435,7 +484,7 @@ $.widget("ui.timecloud", {
          this.play();
       } else {
          this.options.play = false;
-         this.playElem.text("Play");
+         this.controls.playElem.text("Play");
       }
    },
 
@@ -472,7 +521,6 @@ $.widget("ui.timecloud", {
          });
       });
    },
-
 
    // internal: used to convert the cache to the tagcloud.js format
    listToDict: function (lst) {
