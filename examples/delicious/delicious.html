@@ -1,4 +1,6 @@
-<html>
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
    <head>
       <!--[if IE]><script language="javascript" type="text/javascript" src="../../include/excanvas.js"></script><![endif]-->
       <script type="text/javascript" charset="utf-8" src="../../include/jquery.js"></script>
@@ -10,7 +12,7 @@
       <script type="text/javascript">
          $(document).ready(function() {
             $("#loading").hide();
-            $("#drawButton").click(function () { 
+            $("#drawButton").click(function () {
                   $("#loading").show();
                   $('#timecloud').empty();
                   var username=$("#deliciousUser").val();
@@ -43,7 +45,7 @@
             Password: <input type="password" id="deliciousPassword" size="10" />
             <input type="submit" id="drawButton" value="Draw" />
             <div id="loading" style="height: 100px; background: transparent url(spinner.gif) no-repeat scroll center center; text-align: center;"><span>Loading...</span></div>
-            <div id="timecloud" /> 
+            <div id="timecloud" />
          </div>
       </div>
    </body>
