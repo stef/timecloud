@@ -218,7 +218,7 @@
           .addClass("text-control")
           .click(function () {
               thisObj.options.playBack=true;
-              thisObj.controls.forward.removeClass("selected");
+              $(this).siblings().removeClass("selected");
               $(this).addClass("selected");
           })
           .appendTo(result);
@@ -232,7 +232,7 @@
           .addClass("text-control")
           .click(function () {
               thisObj.options.playBack=false;
-              thisObj.controls.back.removeClass("selected");
+              $(this).siblings().removeClass("selected");
               $(this).addClass("selected");
           })
           .appendTo(result);
