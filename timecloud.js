@@ -392,6 +392,7 @@
           var tmp = this.options.sparklineStyle;
           tmp.width = $('.sparkline',target).width();
           $('.sparkline',target).sparkline(lst, tmp);
+          $.sparkline_display_visible()
       },
 
       // internal: this is used to draw a tagcloud, we invoke the services of tagcloud.js
